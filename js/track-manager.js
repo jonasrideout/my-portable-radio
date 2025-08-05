@@ -1,7 +1,7 @@
 // Track Management System
 class TrackManager {
     constructor() {
-        this.savedTracks = [];
+        this.savedTracks = JSON.parse(localStorage.getItem('savedTracks') || '[]');
         this.updateSavedTracksList();
         this.updateViewButtonState();
     }
@@ -38,6 +38,7 @@ class TrackManager {
         
         if (!isDuplicate) {
             this.savedTracks.unshift(track);
+            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
             this.updateListView();
             
@@ -109,6 +110,7 @@ class TrackManager {
         });
         
         if (updated) {
+            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
             this.updateListView();
         }
@@ -177,6 +179,7 @@ class TrackManager {
 
     removeTrack(index) {
         this.savedTracks.splice(index, 1);
+        localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
         this.updateSavedTracksList();
         this.updateListView();
         this.updateViewButtonState();
@@ -213,6 +216,7 @@ class TrackManager {
         
         if (confirm('Are you sure you want to clear all saved tracks?')) {
             this.savedTracks = [];
+            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
             this.updateListView();
             this.updateViewButtonState();
