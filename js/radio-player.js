@@ -99,6 +99,9 @@ class RadioPlayer {
         document.getElementById('albumInfo').textContent = '';
         this.clearHeroDisplay();
 
+        // Show persistent controls
+        this.showPersistentControls();
+
         // Switch to hero view with smooth transition
         this.switchToHeroView(station);
 
@@ -108,7 +111,7 @@ class RadioPlayer {
 
         this.currentAudio.oncanplaythrough = () => {
             document.getElementById('pausePlayButton').textContent = 'PAUSE';
-            document.getElementById('heroPauseButton').querySelector('.hero-button-text').textContent = 'PAUSE';
+            this.updatePersistentControlsText('PAUSE');
         };
 
         this.currentAudio.onerror = (e) => {
@@ -139,6 +142,30 @@ class RadioPlayer {
             alert('Cannot play: ' + stationId);
             this.stopStream();
         });
+    }
+
+    showPersistentControls() {
+        const persistentControls = document.getElementById('persistentControls');
+        if (persistentControls) {
+            persistentControls.classList.remove('hidden');
+        }
+    }
+
+    hidePersistentControls() {
+        const persistentControls = document.getElementById('persistentControls');
+        if (persistentControls) {
+            persistentControls.classList.add('hidden');
+        }
+    }
+
+    updatePersistentControlsText(pauseText) {
+        const persistentPauseButton = document.getElementById('persistentPauseButton');
+        if (persistentPauseButton) {
+            const textElement = persistentPauseButton.querySelector('.persistent-button-text');
+            if (textElement) {
+                textElement.textContent = pauseText;
+            }
+        }
     }
 
     switchToHeroView(station) {
@@ -178,6 +205,20 @@ class RadioPlayer {
         }, 600);
     }
 
+    toggleViewMode() {
+        if (this.isHeroView) {
+            this.switchToGridView();
+        } else {
+            // Switch to hero view if we have a current station
+            if (this.currentStationId) {
+                const station = STATION_CONFIG[this.currentStationId];
+                if (station) {
+                    this.switchToHeroView(station);
+                }
+            }
+        }
+    }
+
     viewSavedTracks() {
         this.isHeroView = false;
         
@@ -213,13 +254,12 @@ class RadioPlayer {
 
     togglePausePlay() {
         const button = document.getElementById('pausePlayButton');
-        const heroButton = document.getElementById('heroPauseButton');
         
         if (this.currentAudio) {
             if (this.currentAudio.paused) {
                 this.currentAudio.play();
                 button.textContent = 'PAUSE';
-                heroButton.querySelector('.hero-button-text').textContent = 'PAUSE';
+                this.updatePersistentControlsText('PAUSE');
                 if (this.currentButton) {
                     this.currentButton.classList.remove('paused');
                     this.currentButton.classList.add('playing');
@@ -227,7 +267,7 @@ class RadioPlayer {
             } else {
                 this.currentAudio.pause();
                 button.textContent = 'PLAY';
-                heroButton.querySelector('.hero-button-text').textContent = 'PLAY';
+                this.updatePersistentControlsText('PLAY');
                 if (this.currentButton) {
                     this.currentButton.classList.remove('playing');
                     this.currentButton.classList.add('paused');
@@ -260,6 +300,9 @@ class RadioPlayer {
         document.getElementById('currentSong').textContent = '';
         document.getElementById('albumInfo').textContent = '';
         this.clearHeroDisplay();
+        
+        // Hide persistent controls
+        this.hidePersistentControls();
         
         // Return to grid view if in hero mode
         if (this.isHeroView) {
