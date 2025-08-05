@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <title>Radio Player</title>
 </head>
@@ -14,7 +14,7 @@
             <div class="main-grid">
                 <div class="controls">
                     <div class="controls-left">
-                        <button class="stop-button" id="pausePlayButton" onclick="radioPlayer.togglePausePlay()">⏸️ Pause</button>
+                        <button class="stop-button" id="pausePlayButton" onclick="radioPlayer.togglePausePlay()">PAUSE</button>
                     </div>
                     <div class="controls-center">
                         <div class="track-info">
@@ -70,28 +70,25 @@
                     <div id="heroAlbum" class="track-content">—</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Persistent Controls (shown in both views when playing) -->
+        <div id="persistentControls" class="persistent-controls hidden">
+            <button class="persistent-button" id="persistentPauseButton" onclick="radioPlayer.togglePausePlay()">
+                <span class="persistent-button-text">PAUSE</span>
+            </button>
             
-            <div class="hero-controls">
-                <button class="hero-button" id="heroPauseButton" onclick="radioPlayer.togglePausePlay()">
-                    <span class="hero-button-icon">⏸️</span>
-                    <span class="hero-button-text">Pause</span>
-                </button>
-                
-                <button class="hero-button accent" id="heroSaveButton" onclick="trackManager.saveCurrentTrack()">
-                    <span class="hero-button-icon">+</span>
-                    <span class="hero-button-text">Add to List</span>
-                </button>
-                
-                <button class="hero-button" id="heroViewButton" onclick="radioPlayer.viewSavedTracks()">
-                    <span class="hero-button-icon">👁️</span>
-                    <span class="hero-button-text">View List</span>
-                </button>
-                
-                <button class="hero-button" onclick="radioPlayer.switchToGridView()">
-                    <span class="hero-button-icon">🔄</span>
-                    <span class="hero-button-text">Switch</span>
-                </button>
-            </div>
+            <button class="persistent-button accent" id="persistentSaveButton" onclick="trackManager.saveCurrentTrack()">
+                <span class="persistent-button-text">ADD TO LIST</span>
+            </button>
+            
+            <button class="persistent-button" id="persistentViewButton" onclick="radioPlayer.viewSavedTracks()">
+                <span class="persistent-button-text">VIEW LIST</span>
+            </button>
+            
+            <button class="persistent-button" id="persistentSwitchButton" onclick="radioPlayer.toggleViewMode()">
+                <span class="persistent-button-text">SWITCH</span>
+            </button>
         </div>
     </div>
 
