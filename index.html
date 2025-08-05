@@ -34,22 +34,6 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="saved-tracks">
-                <h3>
-                    Saved Tracks 
-                    <span class="track-count" id="trackCount">(0)</span>
-                </h3>
-                <div class="saved-tracks-list" id="savedTracksList">
-                    <div class="empty-state">
-                        Click the + button next to "Now Playing" to save tracks you discover!
-                    </div>
-                </div>
-                <div class="track-controls">
-                    <button class="track-control-button" onclick="trackManager.downloadSavedTracks()">Download List</button>
-                    <button class="track-control-button danger" onclick="trackManager.clearSavedTracks()">Clear All</button>
-                </div>
-            </div>
         </div>
 
         <!-- Hero View (Hidden by default) -->
@@ -72,7 +56,29 @@
             </div>
         </div>
 
-        <!-- Persistent Controls (shown in both views when playing) -->
+        <!-- List View (Hidden by default) -->
+        <div id="listView" class="list-view hidden">
+            <div class="list-content">
+                <div class="list-header">
+                    <h2>Saved Tracks</h2>
+                    <span class="track-count" id="listTrackCount">(0)</span>
+                </div>
+                
+                <div class="saved-tracks-list" id="listSavedTracksList">
+                    <div class="empty-state">
+                        Click the + button or "ADD TO LIST" to save tracks you discover!
+                    </div>
+                </div>
+                
+                <div class="list-actions">
+                    <button class="list-action-button" onclick="trackManager.downloadSavedTracks()">
+                        <span class="list-action-text">DOWNLOAD LIST</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persistent Controls (shown in all views when playing) -->
         <div id="persistentControls" class="persistent-controls hidden">
             <button class="persistent-button" id="persistentPauseButton" onclick="radioPlayer.togglePausePlay()">
                 <span class="persistent-button-text">PAUSE</span>
