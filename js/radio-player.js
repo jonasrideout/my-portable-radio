@@ -7,7 +7,8 @@ class RadioPlayer {
         this.nowPlayingInterval = null;
         this.lastTrackInfo = null;
         this.musicBrainzLookup = new MusicBrainzLookup();
-        this.isHeroView = false;
+        this.currentView = 'grid'; // 'grid', 'hero', or 'list'
+        this.previousView = 'grid'; // Track previous view for smart switching
         this.initializeMediaSession();
     }
 
@@ -46,7 +47,7 @@ class RadioPlayer {
     toggleStation(stationId) {
         if (this.currentStationId === stationId && this.currentAudio) {
             // Check if we're in grid view and the station is playing - switch to hero view
-            if (!this.isHeroView && !this.currentAudio.paused) {
+            if (this.currentView === 'grid' && !this.currentAudio.paused) {
                 const station = STATION_CONFIG[stationId];
                 this.switchToHeroView(station);
             } else {
@@ -99,8 +100,9 @@ class RadioPlayer {
         document.getElementById('albumInfo').textContent = '';
         this.clearHeroDisplay();
 
-        // Show persistent controls
+        // Show persistent controls and update button text
         this.showPersistentControls();
+        this.updatePersistentButtonText();
 
         // Switch to hero view with smooth transition
         this.switchToHeroView(station);
@@ -168,48 +170,115 @@ class RadioPlayer {
         }
     }
 
+    updatePersistentButtonText() {
+        const viewButton = document.getElementById('persistentViewButton');
+        if (viewButton) {
+            const textElement = viewButton.querySelector('.persistent-button-text');
+            if (textElement) {
+                if (this.currentView === 'list') {
+                    textElement.textContent = 'CLEAR ALL';
+                    viewButton.classList.remove('view-enabled');
+                    viewButton.classList.add('danger');
+                } else {
+                    textElement.textContent = 'VIEW LIST';
+                    viewButton.classList.remove('danger');
+                    if (trackManager && trackManager.savedTracks.length > 0) {
+                        viewButton.classList.add('view-enabled');
+                    } else {
+                        viewButton.classList.remove('view-enabled');
+                    }
+                }
+            }
+        }
+    }
+
+    switchToGridView() {
+        this.previousView = this.currentView;
+        this.currentView = 'grid';
+        
+        const gridView = document.getElementById('gridView');
+        const heroView = document.getElementById('heroView');
+        const listView = document.getElementById('listView');
+        
+        // Hide other views
+        heroView.classList.remove('active');
+        heroView.classList.add('hidden');
+        listView.classList.add('hidden');
+        
+        // Show grid view
+        gridView.classList.remove('hidden');
+        
+        // Update button text
+        this.updatePersistentButtonText();
+    }
+
     switchToHeroView(station) {
-        this.isHeroView = true;
+        this.previousView = this.currentView;
+        this.currentView = 'hero';
         
         // Update hero view with station info
         const heroLogo = document.getElementById('heroLogo');
         heroLogo.src = station.logo;
         heroLogo.alt = station.name;
         
-        // Hide grid view and show hero view
+        // Hide other views
         const gridView = document.getElementById('gridView');
         const heroView = document.getElementById('heroView');
+        const listView = document.getElementById('listView');
         
         gridView.classList.add('hidden');
+        listView.classList.add('hidden');
         heroView.classList.remove('hidden');
         
         // Trigger animation after a brief delay to ensure DOM update
         setTimeout(() => {
             heroView.classList.add('active');
         }, 50);
+        
+        // Update button text
+        this.updatePersistentButtonText();
     }
 
-    switchToGridView() {
-        this.isHeroView = false;
+    switchToListView() {
+        this.previousView = this.currentView;
+        this.currentView = 'list';
         
         const gridView = document.getElementById('gridView');
         const heroView = document.getElementById('heroView');
+        const listView = document.getElementById('listView');
         
-        // Start transition
+        // Hide other views
+        gridView.classList.add('hidden');
         heroView.classList.remove('active');
+        heroView.classList.add('hidden');
         
-        // After transition completes, show grid view
-        setTimeout(() => {
-            heroView.classList.add('hidden');
-            gridView.classList.remove('hidden');
-        }, 600);
+        // Show list view
+        listView.classList.remove('hidden');
+        
+        // Update button text
+        this.updatePersistentButtonText();
+        
+        // Update the list content
+        if (trackManager) {
+            trackManager.updateListView();
+        }
     }
 
     toggleViewMode() {
-        if (this.isHeroView) {
+        if (this.currentView === 'list') {
+            // From list view, go back to previous view
+            if (this.previousView === 'hero' && this.currentStationId) {
+                const station = STATION_CONFIG[this.currentStationId];
+                if (station) {
+                    this.switchToHeroView(station);
+                }
+            } else {
+                this.switchToGridView();
+            }
+        } else if (this.currentView === 'hero') {
             this.switchToGridView();
         } else {
-            // Switch to hero view if we have a current station
+            // From grid view, switch to hero if we have a current station
             if (this.currentStationId) {
                 const station = STATION_CONFIG[this.currentStationId];
                 if (station) {
@@ -220,30 +289,15 @@ class RadioPlayer {
     }
 
     viewSavedTracks() {
-        this.isHeroView = false;
-        
-        const gridView = document.getElementById('gridView');
-        const heroView = document.getElementById('heroView');
-        
-        // Start transition
-        heroView.classList.remove('active');
-        
-        // After transition completes, show grid view and scroll to saved tracks
-        setTimeout(() => {
-            heroView.classList.add('hidden');
-            gridView.classList.remove('hidden');
-            
-            // Scroll to saved tracks section smoothly
-            setTimeout(() => {
-                const savedTracksSection = document.querySelector('.saved-tracks');
-                if (savedTracksSection) {
-                    savedTracksSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            }, 100);
-        }, 600);
+        if (this.currentView === 'list') {
+            // If we're in list view and this is the "CLEAR ALL" button
+            if (trackManager) {
+                trackManager.clearSavedTracks();
+            }
+        } else {
+            // Switch to list view
+            this.switchToListView();
+        }
     }
 
     clearHeroDisplay() {
@@ -305,7 +359,7 @@ class RadioPlayer {
         this.hidePersistentControls();
         
         // Return to grid view if in hero mode
-        if (this.isHeroView) {
+        if (this.currentView === 'hero') {
             this.switchToGridView();
         }
         
@@ -328,7 +382,7 @@ class RadioPlayer {
                 songElement.textContent = trackInfo.displayText;
                 
                 // Update hero view
-                if (this.isHeroView) {
+                if (this.currentView === 'hero') {
                     this.updateHeroView(trackInfo);
                 }
                 
@@ -385,7 +439,7 @@ class RadioPlayer {
                     songElement.textContent = trackInfo.displayText;
                     
                     // Update hero view
-                    if (this.isHeroView) {
+                    if (this.currentView === 'hero') {
                         this.updateHeroView(trackInfo);
                     }
                     
@@ -403,7 +457,7 @@ class RadioPlayer {
                     songElement.textContent = fallbackInfo.displayText;
                     
                     // Update hero view with fallback
-                    if (this.isHeroView) {
+                    if (this.currentView === 'hero') {
                         this.updateHeroView(fallbackInfo);
                     }
                     
