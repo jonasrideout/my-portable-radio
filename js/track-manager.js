@@ -1,7 +1,7 @@
 // Track Management System
 class TrackManager {
     constructor() {
-        this.savedTracks = JSON.parse(localStorage.getItem('savedTracks') || '[]');
+        this.savedTracks = [];
         this.updateSavedTracksList();
         this.updateViewButtonState();
     }
@@ -9,7 +9,7 @@ class TrackManager {
     saveCurrentTrack() {
         const currentTrack = radioPlayer.getCurrentTrack();
         const button = document.getElementById('saveTrackButton');
-        const heroButton = document.getElementById('heroSaveButton');
+        const persistentButton = document.getElementById('persistentSaveButton');
         
         if (!currentTrack || 
             currentTrack.displayText.startsWith('Listening to') || 
@@ -38,14 +38,14 @@ class TrackManager {
         
         if (!isDuplicate) {
             this.savedTracks.unshift(track);
-            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
+            this.updateListView();
             
             // Show success feedback on both buttons
             this.showSaveSuccess(button);
-            this.showSaveSuccess(heroButton);
+            this.showSaveSuccess(persistentButton);
             
-            // Enable view button
+            // Update view button state
             this.updateViewButtonState();
         }
     }
@@ -53,13 +53,13 @@ class TrackManager {
     showSaveSuccess(button) {
         if (!button) return;
         
-        const originalIcon = button.querySelector('.hero-button-icon, .save-track-button') ? 
-                           button.querySelector('.hero-button-icon').textContent : 
+        const originalText = button.querySelector('.persistent-button-text') ? 
+                           button.querySelector('.persistent-button-text').textContent : 
                            button.textContent;
         
         // Show checkmark
-        if (button.querySelector('.hero-button-icon')) {
-            button.querySelector('.hero-button-icon').textContent = '✓';
+        if (button.querySelector('.persistent-button-text')) {
+            button.querySelector('.persistent-button-text').textContent = 'SAVED';
             button.classList.add('saved');
         } else {
             button.textContent = '✓';
@@ -67,21 +67,21 @@ class TrackManager {
         }
         
         // Store original state to restore later
-        button.dataset.originalIcon = originalIcon;
+        button.dataset.originalText = originalText;
         button.dataset.showingSuccess = 'true';
     }
 
     clearSaveSuccess() {
         const button = document.getElementById('saveTrackButton');
-        const heroButton = document.getElementById('heroSaveButton');
+        const persistentButton = document.getElementById('persistentSaveButton');
         
-        [button, heroButton].forEach(btn => {
+        [button, persistentButton].forEach(btn => {
             if (btn && btn.dataset.showingSuccess === 'true') {
-                if (btn.querySelector('.hero-button-icon')) {
-                    btn.querySelector('.hero-button-icon').textContent = btn.dataset.originalIcon || '+';
+                if (btn.querySelector('.persistent-button-text')) {
+                    btn.querySelector('.persistent-button-text').textContent = btn.dataset.originalText || 'ADD TO LIST';
                     btn.classList.remove('saved');
                 } else {
-                    btn.textContent = btn.dataset.originalIcon || '+';
+                    btn.textContent = btn.dataset.originalText || '+';
                     btn.classList.remove('saved');
                 }
                 btn.dataset.showingSuccess = 'false';
@@ -90,13 +90,10 @@ class TrackManager {
     }
 
     updateViewButtonState() {
-        const heroViewButton = document.getElementById('heroViewButton');
-        if (heroViewButton) {
-            if (this.savedTracks.length > 0) {
-                heroViewButton.classList.add('view-enabled');
-            } else {
-                heroViewButton.classList.remove('view-enabled');
-            }
+        const persistentViewButton = document.getElementById('persistentViewButton');
+        if (persistentViewButton && radioPlayer) {
+            // Update persistent button text and styling
+            radioPlayer.updatePersistentButtonText();
         }
     }
 
@@ -112,40 +109,77 @@ class TrackManager {
         });
         
         if (updated) {
-            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
+            this.updateListView();
         }
     }
 
     updateSavedTracksList() {
+        // Update the old grid view saved tracks (if it exists)
         const listElement = document.getElementById('savedTracksList');
         const countElement = document.getElementById('trackCount');
         
-        countElement.textContent = '(' + this.savedTracks.length + ')';
-        
-        if (this.savedTracks.length === 0) {
-            listElement.innerHTML = '<div class="empty-state">Click the + button next to "Now Playing" to save tracks you discover!</div>';
-            return;
+        if (countElement) {
+            countElement.textContent = '(' + this.savedTracks.length + ')';
         }
         
-        listElement.innerHTML = this.savedTracks.map((track, index) => {
-            const albumInfo = track.album ? track.album : '';
-            const yearInfo = track.year ? ` (${track.year})` : '';
+        if (listElement) {
+            if (this.savedTracks.length === 0) {
+                listElement.innerHTML = '<div class="empty-state">Click the + button next to "Now Playing" to save tracks you discover!</div>';
+                return;
+            }
             
-            return `<div class="saved-track-item">
-                <div class="track-info-text">
-                    <strong>${track.artist} - ${track.title}${yearInfo}</strong><br>
-                    <small>${albumInfo}</small>
-                </div>
-                <button class="remove-track" onclick="trackManager.removeTrack(${index})">×</button>
-            </div>`;
-        }).join('');
+            listElement.innerHTML = this.savedTracks.map((track, index) => {
+                const albumInfo = track.album ? track.album : '';
+                const yearInfo = track.year ? ` (${track.year})` : '';
+                
+                return `<div class="saved-track-item">
+                    <div class="track-info-text">
+                        <strong>${track.artist} - ${track.title}${yearInfo}</strong><br>
+                        <small>${albumInfo}</small>
+                    </div>
+                    <button class="remove-track" onclick="trackManager.removeTrack(${index})">×</button>
+                </div>`;
+            }).join('');
+        }
+    }
+
+    updateListView() {
+        // Update the new dedicated List View
+        const listElement = document.getElementById('listSavedTracksList');
+        const countElement = document.getElementById('listTrackCount');
+        
+        if (countElement) {
+            countElement.textContent = '(' + this.savedTracks.length + ')';
+        }
+        
+        if (listElement) {
+            if (this.savedTracks.length === 0) {
+                listElement.innerHTML = '<div class="empty-state">Click the + button or "ADD TO LIST" to save tracks you discover!</div>';
+                return;
+            }
+            
+            listElement.innerHTML = this.savedTracks.map((track, index) => {
+                const albumInfo = track.album ? track.album : '';
+                const yearInfo = track.year ? ` (${track.year})` : '';
+                const stationInfo = track.station ? ` • ${track.station}` : '';
+                
+                return `<div class="saved-track-item">
+                    <div class="track-info-text">
+                        <strong>${track.artist} - ${track.title}${yearInfo}</strong><br>
+                        <small>${albumInfo}${stationInfo}</small>
+                    </div>
+                    <button class="remove-track" onclick="trackManager.removeTrack(${index})">×</button>
+                </div>`;
+            }).join('');
+        }
     }
 
     removeTrack(index) {
         this.savedTracks.splice(index, 1);
-        localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
         this.updateSavedTracksList();
+        this.updateListView();
+        this.updateViewButtonState();
     }
 
     downloadSavedTracks() {
@@ -173,10 +207,15 @@ class TrackManager {
     }
 
     clearSavedTracks() {
+        if (this.savedTracks.length === 0) {
+            return; // Nothing to clear
+        }
+        
         if (confirm('Are you sure you want to clear all saved tracks?')) {
             this.savedTracks = [];
-            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
+            this.updateListView();
+            this.updateViewButtonState();
         }
     }
 }
