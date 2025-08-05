@@ -1,0 +1,432 @@
+// Track Information Parser - Enhanced to extract year and more metadata
+class TrackParser {
+    static parseTrackInfo(stationId, data) {
+        const station = STATION_CONFIG[stationId];
+        if (!station) return null;
+
+        const parser = this.parsers[station.parser];
+        if (!parser) return this.createFallbackTrack(stationId);
+
+        try {
+            return parser(data, stationId);
+        } catch (error) {
+            console.error(`Parser error for ${stationId}:`, error);
+            return this.createFallbackTrack(stationId);
+        }
+    }
+
+    static createFallbackTrack(stationId) {
+        return {
+            artist: 'Unknown Artist',
+            title: 'Unknown Track',
+            album: null,
+            year: null,
+            station: stationId,
+            displayText: `Listening to ${stationId}`,
+            raw: null
+        };
+    }
+
+    static extractYear(text) {
+        if (!text) return null;
+        
+        // Look for 4-digit years (1900-2099)
+        const yearMatch = text.match(/\b(19\d{2}|20\d{2})\b/);
+        return yearMatch ? parseInt(yearMatch[1]) : null;
+    }
+
+    static cleanText(text) {
+        if (!text) return '';
+        return text.trim()
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+    }
+
+    static parsers = {
+        kexp: (data, stationId) => {
+            if (data.results && data.results.length > 0) {
+                const track = data.results[0];
+                const artist = track.artist || 'Unknown Artist';
+                const title = track.song || 'Unknown Track';
+                const album = track.album || null;
+                // Don't use KEXP year - let MusicBrainz handle it
+                const year = null;
+
+                return {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}`,
+                    raw: track
+                };
+            }
+            return TrackParser.createFallbackTrack(stationId);
+        },
+
+        wbgo: (data, stationId) => {
+            if (data.onNow && data.onNow.song) {
+                const song = data.onNow.song;
+                const artist = song.artistName || 'Unknown Artist';
+                const title = song.trackName || 'Unknown Track';
+                const album = song.albumName || null;
+                const year = TrackParser.extractYear(album) || TrackParser.extractYear(song.catalogNumber);
+
+                return {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                    raw: song
+                };
+            }
+            return TrackParser.createFallbackTrack(stationId);
+        },
+
+        wfuv: (data, stationId) => {
+            if (data.live) {
+                const live = data.live;
+                const artist = live.artist || live.artistName || 'Unknown Artist';
+                const title = live.title || live.songName || 'Unknown Track';
+                const album = live.album || null;
+                const year = TrackParser.extractYear(live.year) || TrackParser.extractYear(album);
+
+                return {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                    raw: live
+                };
+            }
+            return TrackParser.createFallbackTrack(stationId);
+        },
+
+        wfmu: (data, stationId) => {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data, 'text/xml');
+            
+            const artistEl = xmlDoc.querySelector('artist');
+            const titleEl = xmlDoc.querySelector('title');
+            const albumEl = xmlDoc.querySelector('album');
+            const yearEl = xmlDoc.querySelector('year');
+
+            if (artistEl && titleEl) {
+                const artist = TrackParser.cleanText(artistEl.textContent);
+                const title = TrackParser.cleanText(titleEl.textContent);
+                const album = albumEl ? TrackParser.cleanText(albumEl.textContent) : null;
+                const year = yearEl ? TrackParser.extractYear(yearEl.textContent) : TrackParser.extractYear(album);
+
+                return {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                    raw: { artist, title, album, year }
+                };
+            }
+
+            // Fallback to song element
+            const songEl = xmlDoc.querySelector('song');
+            if (songEl) {
+                const songText = TrackParser.cleanText(songEl.textContent);
+                const dashIndex = songText.indexOf(' - ');
+                
+                if (dashIndex > 0) {
+                    const artist = songText.substring(0, dashIndex);
+                    const titlePart = songText.substring(dashIndex + 3);
+                    const year = TrackParser.extractYear(titlePart);
+                    const title = titlePart.replace(/\s*\(\d{4}\)\s*/, ''); // Remove year from title
+
+                    return {
+                        artist,
+                        title,
+                        album: null,
+                        year,
+                        station: stationId,
+                        displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                        raw: { songText }
+                    };
+                }
+            }
+
+            return TrackParser.createFallbackTrack(stationId);
+        },
+
+        kntu: (data, stationId) => {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data, 'text/xml');
+            
+            const artistEl = xmlDoc.querySelector('artist');
+            const titleEl = xmlDoc.querySelector('title');
+            const albumEl = xmlDoc.querySelector('album');
+
+            if (artistEl && titleEl) {
+                const artist = TrackParser.cleanText(artistEl.textContent);
+                const title = TrackParser.cleanText(titleEl.textContent);
+                const album = albumEl ? TrackParser.cleanText(albumEl.textContent) : null;
+                const year = TrackParser.extractYear(album);
+
+                return {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                    raw: { artist, title, album }
+                };
+            }
+
+            return TrackParser.createFallbackTrack(stationId);
+        },
+
+        wdvx: (data, stationId) => {
+            console.log('WDVX raw data:', data); // Debug logging
+            
+            // Try multiple patterns to find track info
+            const patterns = [
+                // WDVX-specific pattern for "Current Song:" table format
+                /<td>Current Song:<\/td>\s*<td[^>]*>([^<]+)<\/td>/i,
+                // XML-style patterns for Icecast status
+                /<title[^>]*>([^<]+)<\/title>/i,
+                /<server_name[^>]*>([^<]+)<\/server_name>/i,
+                /<yp_currently_playing[^>]*>([^<]+)<\/yp_currently_playing>/i,
+                /<artist[^>]*>([^<]+)<\/artist>/i,
+                /<song[^>]*>([^<]+)<\/song>/i,
+                // HTML table patterns - look for streamdata class specifically
+                /<td class="streamdata">([^<]+)<\/td>/i,
+                // General HTML table patterns
+                /<td[^>]*>([^<]*\s*-\s*[^<]*)<\/td>/i,
+                // Text-based patterns
+                /current[^<]*song[^<]*:?\s*([^<\n\r]+)/i,
+                /now playing[^<]*:?\s*([^<\n\r]+)/i,
+                /title[^<]*:?\s*([^<\n\r]+)/i,
+                // StreamGuys-specific patterns
+                /StreamTitle='([^']+)'/i,
+                /Current Track:\s*([^\n\r]+)/i,
+                // Last resort - any text that looks like "Artist - Title"
+                /([^<>\n\r]+ - [^<>\n\r]+)/
+            ];
+
+            let songText = null;
+            
+            for (const pattern of patterns) {
+                const match = data.match(pattern);
+                if (match && match[1] && match[1].trim()) {
+                    songText = TrackParser.cleanText(match[1].trim());
+                    console.log('WDVX matched pattern:', pattern, 'result:', songText);
+                    
+                    // Skip if it's just the station name or generic text
+                    if (songText.toLowerCase().includes('wdvx') && !songText.includes(' - ')) {
+                        continue;
+                    }
+                    
+                    break;
+                }
+            }
+
+            if (songText) {
+                const dashIndex = songText.indexOf(' - ');
+                
+                if (dashIndex > 0) {
+                    const artist = songText.substring(0, dashIndex).trim();
+                    const titlePart = songText.substring(dashIndex + 3).trim();
+                    const year = TrackParser.extractYear(titlePart);
+                    let title = titlePart.replace(/\s*\(\d{4}\)\s*/, '').trim();
+
+                    // Handle duplicate titles like "Song Name - Song Name"
+                    const titleDashIndex = title.indexOf(' - ');
+                    if (titleDashIndex > 0) {
+                        const firstPart = title.substring(0, titleDashIndex).trim();
+                        const secondPart = title.substring(titleDashIndex + 3).trim();
+                        // If both parts are the same, use just one
+                        if (firstPart === secondPart) {
+                            title = firstPart;
+                        }
+                    }
+
+                    // Make sure we have meaningful data
+                    if (artist && title && artist !== title) {
+                        return {
+                            artist,
+                            title,
+                            album: null,
+                            year,
+                            station: stationId,
+                            displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                            raw: { songText, matchedData: data.substring(0, 500) }
+                        };
+                    }
+                } else if (songText.length > 3) {
+                    // Even if no dash, use as title if it's meaningful
+                    return {
+                        artist: 'Unknown Artist',
+                        title: songText,
+                        album: null,
+                        year: TrackParser.extractYear(songText),
+                        station: stationId,
+                        displayText: `Unknown Artist - ${songText}`,
+                        raw: { songText, matchedData: data.substring(0, 500) }
+                    };
+                }
+            }
+
+            console.log('WDVX: No valid track info found');
+            return TrackParser.createFallbackTrack(stationId);
+        },
+
+        kvrx: (data, stationId) => {
+            console.log('KVRX parser received data:', data, 'type:', typeof data);
+            
+            if (data && data.artist && data.track) {
+                const artist = data.artist || 'Unknown Artist';
+                const title = data.track || 'Unknown Track';
+                const album = data.album || null;
+                
+                // Try to extract year from album name if available
+                const year = TrackParser.extractYear(album);
+
+                // Create display text without show information
+                let displayText = `${artist} - ${title}`;
+                if (year) {
+                    displayText += ` (${year})`;
+                }
+
+                const result = {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText,
+                    raw: data
+                };
+                
+                console.log('KVRX parser returning:', result);
+                return result;
+            }
+            
+            console.log('KVRX parser: no valid data found, using fallback');
+            return TrackParser.createFallbackTrack(stationId);
+        },
+        none: (data, stationId) => {
+            return {
+                artist: 'Live Radio',
+                title: 'Track Data Not Available',
+                album: null,
+                year: null,
+                station: stationId,
+                displayText: 'Track Data Not Available',
+                raw: null
+            };
+        }
+    };
+}
+
+// MusicBrainz Lookup for Album Information
+class MusicBrainzLookup {
+    constructor() {
+        this.cache = new Map();
+        this.lastRequestTime = 0;
+        this.minRequestInterval = 1000; // 1 second between requests to be respectful
+    }
+
+    async lookupTrackInfo(artist, title) {
+        const cacheKey = `${artist}|${title}`.toLowerCase();
+        
+        // Check cache first
+        if (this.cache.has(cacheKey)) {
+            return this.cache.get(cacheKey);
+        }
+
+        try {
+            // Rate limiting - wait if needed
+            const timeSinceLastRequest = Date.now() - this.lastRequestTime;
+            if (timeSinceLastRequest < this.minRequestInterval) {
+                await new Promise(resolve => setTimeout(resolve, this.minRequestInterval - timeSinceLastRequest));
+            }
+
+            const query = `artist:"${artist}" AND recording:"${title}"`;
+            const url = `https://musicbrainz.org/ws/2/recording/?query=${encodeURIComponent(query)}&fmt=json&limit=5`;
+            
+            console.log('MusicBrainz lookup:', { artist, title, url });
+            this.lastRequestTime = Date.now();
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            const result = this.parseResponse(data, artist, title);
+            
+            // Cache the result (even if null)
+            this.cache.set(cacheKey, result);
+            
+            return result;
+
+        } catch (error) {
+            console.log('MusicBrainz lookup failed:', error);
+            // Cache null result to avoid repeated failed lookups
+            this.cache.set(cacheKey, null);
+            return null;
+        }
+    }
+
+    parseResponse(data, originalArtist, originalTitle) {
+        if (!data.recordings || data.recordings.length === 0) {
+            return null;
+        }
+
+        // Look for the best match
+        for (const recording of data.recordings) {
+            if (!recording.releases || recording.releases.length === 0) {
+                continue;
+            }
+
+            // Find the earliest release with a date
+            let bestRelease = null;
+            let earliestYear = null;
+
+            for (const release of recording.releases) {
+                if (release.date) {
+                    const year = parseInt(release.date.substring(0, 4));
+                    if (year && (!earliestYear || year < earliestYear)) {
+                        earliestYear = year;
+                        bestRelease = release;
+                    }
+                }
+            }
+
+            if (bestRelease && earliestYear) {
+                console.log('MusicBrainz found:', {
+                    album: bestRelease.title,
+                    year: earliestYear,
+                    for: `${originalArtist} - ${originalTitle}`
+                });
+
+                return {
+                    album: bestRelease.title,
+                    year: earliestYear
+                };
+            }
+        }
+
+        return null;
+    }
+
+    clearCache() {
+        this.cache.clear();
+    }
+}

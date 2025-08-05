@@ -1,0 +1,780 @@
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    background: white;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.main-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.controls {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 15px;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+    box-sizing: border-box;
+    justify-content: space-between;
+}
+
+.controls-left {
+    display: flex;
+    align-items: center;
+}
+
+.controls-center {
+    flex: 1;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.controls-right {
+    display: flex;
+    align-items: center;
+}
+
+.track-info {
+    line-height: 1.4;
+}
+
+.track-main {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.track-details {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.album-info {
+    font-style: italic;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.stations-grid-container {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.radio-button {
+    background: transparent;
+    color: #6b7280;
+    border: 2px solid #d1d5db;
+    padding: 15px 10px;
+    font-size: 14px;
+    font-weight: 300;
+    font-family: 'Poppins', Arial, sans-serif;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-sizing: border-box;
+}
+
+.radio-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    background: rgba(107, 114, 128, 0.05);
+}
+
+.radio-button.playing {
+    color: white;
+    border: 2px solid #ff4444;
+    animation: redglow 2s infinite;
+}
+
+.radio-button.paused {
+    color: #333;
+    border: 2px solid #ff8800;
+    animation: orangeglow 2s infinite;
+}
+
+/* Updated station button states - border glow only */
+.radio-button.playing {
+    color: #374151 !important;
+    border: 2px solid #ef4444 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    animation: redBorderGlow 2s infinite !important;
+}
+
+.radio-button.paused {
+    color: #374151 !important;
+    border: 2px solid #f59e0b !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    animation: orangeBorderGlow 2s infinite !important;
+}
+
+.logo-container {
+    width: 100% !important;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(248, 250, 252, 0.3);
+    border-radius: 8px;
+    box-sizing: border-box !important;
+}
+
+.logo-container img {
+    max-width: 180px;
+    max-height: 80px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+.stop-button {
+    background: transparent;
+    color: #6b7280;
+    border: 2px solid #d1d5db;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.stop-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    background: rgba(107, 114, 128, 0.1);
+}
+
+.save-track-button {
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.save-track-button.saved {
+    background: #22c55e;
+    transform: scale(1.1);
+}
+
+.saved-tracks {
+    width: 100%;
+    margin-top: 20px;
+    box-sizing: border-box;
+    display: block !important;
+    position: relative !important;
+    z-index: 1;
+    background: white;
+}
+
+.saved-tracks h3 {
+    margin: 0 0 15px 0;
+    color: #374151;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.track-count {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: normal;
+}
+
+.saved-tracks-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background: white;
+}
+
+.saved-track-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    color: #374151;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.saved-track-item:last-child {
+    border-bottom: none;
+}
+
+.saved-track-item:nth-child(even) {
+    background: #f9fafb;
+}
+
+.track-info-text {
+    flex: 1;
+}
+
+.remove-track {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.remove-track:hover {
+    background: #dc2626;
+}
+
+.track-controls {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.track-control-button {
+    background: transparent;
+    color: #6b7280;
+    border: 2px solid #d1d5db;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', Arial, sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.track-control-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    background: rgba(107, 114, 128, 0.1);
+}
+
+.track-control-button.danger {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.track-control-button.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Hero View Styles */
+.hero-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.hero-view.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: all;
+}
+
+.hero-view.hidden {
+    display: none;
+}
+
+.hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+}
+
+.hero-station-logo {
+    margin-bottom: 60px;
+    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
+    transition: transform 0.3s ease;
+}
+
+.hero-station-logo:hover {
+    transform: scale(1.02);
+}
+
+.hero-station-logo img {
+    max-width: 200px;
+    max-height: 160px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.hero-track-info {
+    max-width: 600px;
+    width: 100%;
+}
+
+.track-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 8px;
+    margin-top: 32px;
+}
+
+.track-label:first-child {
+    margin-top: 0;
+}
+
+.track-content {
+    font-size: 28px;
+    font-weight: 500;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.track-content:empty::after {
+    content: "—";
+    color: #94a3b8;
+}
+
+.hero-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px 40px 40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 100;
+}
+
+.hero-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Poppins', Arial, sans-serif;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.hero-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 1);
+}
+
+.hero-button:active {
+    transform: translateY(0);
+    transition: transform 0.1s ease;
+}
+
+.hero-button.accent {
+    background: rgba(255, 255, 255, 0.9);
+    color: #6b7280;
+    border-color: #e5e7eb;
+}
+
+.hero-button.accent:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.hero-button.accent .hero-button-icon {
+    color: #3b82f6;
+    font-weight: bold;
+}
+
+.hero-button.accent .hero-button-text {
+    color: #374151;
+}
+
+.hero-button.saved {
+    background: rgba(255, 255, 255, 0.9);
+    color: #10b981;
+    border-color: #10b981;
+}
+
+.hero-button.saved .hero-button-icon {
+    color: #10b981;
+}
+
+.hero-button.view-enabled {
+    background: rgba(255, 255, 255, 0.9);
+    color: #6366f1;
+    border-color: #6366f1;
+}
+
+.hero-button.view-enabled:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+}
+
+.hero-button.view-enabled .hero-button-icon {
+    color: #6366f1;
+}
+
+.hero-button-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.hero-button-text {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: #374151;
+    text-transform: uppercase;
+}
+
+/* Grid View Styles */
+.grid-view {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.grid-view.hidden {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+}
+
+/* Enhanced Station Button Styles */
+.radio-button {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.radio-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border-color: #cbd5e1;
+}
+
+.radio-button.playing {
+    color: #374151 !important;
+    border: 2px solid #ef4444 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    animation: redBorderGlow 2s infinite !important;
+}
+
+.radio-button.paused {
+    color: #374151 !important;
+    border: 2px solid #f59e0b !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    animation: orangeBorderGlow 2s infinite !important;
+}
+
+@keyframes redBorderGlow {
+    0%, 100% {
+        border-color: #ef4444;
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4), 0 0 0 1px rgba(239, 68, 68, 0.3);
+    }
+    50% {
+        border-color: #dc2626;
+        box-shadow: 0 8px 40px rgba(239, 68, 68, 0.6), 0 0 0 2px rgba(239, 68, 68, 0.5);
+    }
+}
+
+@keyframes orangeBorderGlow {
+    0%, 100% {
+        border-color: #f59e0b;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4), 0 0 0 1px rgba(245, 158, 11, 0.3);
+    }
+    50% {
+        border-color: #d97706;
+        box-shadow: 0 8px 40px rgba(245, 158, 11, 0.6), 0 0 0 2px rgba(245, 158, 11, 0.5);
+    }
+}
+
+/* Updated station button states - border glow only */
+
+/* Enhanced Controls */
+.controls {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stop-button {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stop-button:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.save-track-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.save-track-button:hover {
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+}
+
+.save-track-button.saved {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Mobile Responsive for Hero View */
+@media (max-width: 768px) {
+    .hero-view {
+        height: 100vh;
+        height: 100svh; /* Small viewport height - excludes browser UI */
+        min-height: 100vh;
+        min-height: 100svh;
+    }
+    
+    .hero-content {
+        padding: 20px 20px 0;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 0;
+    }
+    
+    .hero-station-logo {
+        margin-bottom: 30px;
+        flex-shrink: 0;
+    }
+    
+    .hero-station-logo img {
+        max-width: 120px;
+        max-height: 100px;
+    }
+    
+    .hero-track-info {
+        flex-shrink: 0;
+    }
+    
+    .track-content {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+    
+    .track-label {
+        margin-top: 20px;
+        margin-bottom: 6px;
+    }
+    
+    .hero-controls {
+        padding: 15px;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+        /* Remove debugging borders */
+        /* border: 3px solid red !important; */
+        /* min-height: 80px !important; */
+    }
+    
+    .hero-button {
+        width: calc(25% - 9px);
+        height: 55px;
+        flex: 1;
+    }
+    
+    .hero-button-icon {
+        font-size: 16px;
+        margin-bottom: 2px;
+    }
+    
+    .hero-button-text {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content {
+        padding: 15px;
+    }
+    
+    .track-content {
+        font-size: 20px;
+    }
+    
+    .hero-controls {
+        padding: 15px;
+        gap: 10px;
+    }
+    
+    .hero-button {
+        width: calc(25% - 8px);
+        height: 55px;
+    }
+    
+    .hero-button-icon {
+        font-size: 16px;
+    }
+    
+    .hero-button-text {
+        font-size: 10px;
+    }
+}
+@media (max-width: 768px) {
+    body {
+        padding: 10px !important;
+    }
+    
+    .container {
+        padding: 0 5px !important;
+    }
+    
+    .main-grid {
+        gap: 10px !important;
+    }
+    
+    .radio-button {
+        min-height: 120px !important;
+        padding: 10px 8px !important;
+        font-size: 12px !important;
+    }
+    
+    .controls {
+        padding: 10px !important;
+        gap: 8px !important;
+    }
+    
+    .logo-container {
+        height: 80px !important;
+    }
+    
+    .logo-container img {
+        max-width: 150px !important;
+        max-height: 60px !important;
+    }
+    
+    .stop-button {
+        padding: 8px 20px !important;
+        font-size: 14px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-grid {
+        gap: 8px !important;
+    }
+    
+    .radio-button {
+        min-height: 100px !important;
+        padding: 8px 6px !important;
+        font-size: 11px !important;
+    }
+    
+    .logo-container {
+        height: 70px !important;
+    }
+    
+    .logo-container img {
+        max-width: 120px !important;
+        max-height: 50px !important;
+    }
+    
+    .controls {
+        padding: 8px !important;
+    }
+    
+    .stop-button {
+        padding: 6px 15px !important;
+        font-size: 12px !important;
+    }
+    
+    .track-control-button {
+        padding: 8px 15px !important;
+        font-size: 12px !important;
+    }
+}

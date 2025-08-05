@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <title>Radio Player</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Grid View (Default State) -->
+        <div id="gridView" class="grid-view">
+            <div class="main-grid">
+                <div class="controls">
+                    <div class="controls-left">
+                        <button class="stop-button" id="pausePlayButton" onclick="radioPlayer.togglePausePlay()">⏸️ Pause</button>
+                    </div>
+                    <div class="controls-center">
+                        <div class="track-info">
+                            <div class="track-main">Now Playing</div>
+                            <div id="currentSong" class="track-details"></div>
+                            <div id="albumInfo" class="track-details album-info"></div>
+                        </div>
+                    </div>
+                    <div class="controls-right">
+                        <button id="saveTrackButton" class="save-track-button" onclick="trackManager.saveCurrentTrack()" title="Save this track">+</button>
+                    </div>
+                </div>
+                
+                <div class="stations-grid-container">
+                    <div id="stationsGrid" class="stations-grid" style="display: flex; flex-wrap: wrap; gap: 15px; width: 100%; box-sizing: border-box; margin-bottom: 20px; padding: 0;">
+                        <!-- Station buttons will be generated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="saved-tracks">
+                <h3>
+                    Saved Tracks 
+                    <span class="track-count" id="trackCount">(0)</span>
+                </h3>
+                <div class="saved-tracks-list" id="savedTracksList">
+                    <div class="empty-state">
+                        Click the + button next to "Now Playing" to save tracks you discover!
+                    </div>
+                </div>
+                <div class="track-controls">
+                    <button class="track-control-button" onclick="trackManager.downloadSavedTracks()">Download List</button>
+                    <button class="track-control-button danger" onclick="trackManager.clearSavedTracks()">Clear All</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero View (Hidden by default) -->
+        <div id="heroView" class="hero-view hidden">
+            <div class="hero-content">
+                <div class="hero-station-logo">
+                    <img id="heroLogo" src="" alt="Station Logo">
+                </div>
+                
+                <div class="hero-track-info">
+                    <div class="track-label">ARTIST</div>
+                    <div id="heroArtist" class="track-content">Loading...</div>
+                    
+                    <div class="track-label">SONG</div>
+                    <div id="heroSong" class="track-content">Loading...</div>
+                    
+                    <div class="track-label">ALBUM</div>
+                    <div id="heroAlbum" class="track-content">—</div>
+                </div>
+            </div>
+            
+            <div class="hero-controls">
+                <button class="hero-button" id="heroPauseButton" onclick="radioPlayer.togglePausePlay()">
+                    <span class="hero-button-icon">⏸️</span>
+                    <span class="hero-button-text">Pause</span>
+                </button>
+                
+                <button class="hero-button accent" id="heroSaveButton" onclick="trackManager.saveCurrentTrack()">
+                    <span class="hero-button-icon">+</span>
+                    <span class="hero-button-text">Add to List</span>
+                </button>
+                
+                <button class="hero-button" id="heroViewButton" onclick="radioPlayer.viewSavedTracks()">
+                    <span class="hero-button-icon">👁️</span>
+                    <span class="hero-button-text">View List</span>
+                </button>
+                
+                <button class="hero-button" onclick="radioPlayer.switchToGridView()">
+                    <span class="hero-button-icon">🔄</span>
+                    <span class="hero-button-text">Switch</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript files -->
+    <script src="js/station-config.js"></script>
+    <script src="js/track-parser.js"></script>
+    <script src="js/radio-player.js"></script>
+    <script src="js/track-manager.js"></script>
+    <script src="js/ui-generator.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
