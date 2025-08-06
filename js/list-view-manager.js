@@ -79,26 +79,18 @@ class ListViewManager {
                 <div class="header-artist">ARTIST</div>
                 <div class="header-song">SONG</div>
                 <div class="header-album">ALBUM</div>
+                <div class="header-year">YEAR</div>
                 <div class="header-remove"></div>
             </div>`;
             
             // Create track rows
             const tracksHTML = savedTracks.map((track, index) => {
-                // Format album info like hero view (Album • Year)
-                let albumText = '';
-                if (track.album && track.year) {
-                    albumText = `${track.album} • ${track.year}`;
-                } else if (track.album) {
-                    albumText = track.album;
-                } else if (track.year) {
-                    albumText = `(${track.year})`;
-                }
-                
                 return `<div class="saved-track-item">
                     <div class="track-info-text">
                         <div class="track-artist">${track.artist || 'Unknown Artist'}</div>
                         <div class="track-song">${track.title || 'Unknown Track'}</div>
-                        <div class="track-album">${albumText}</div>
+                        <div class="track-album">${track.album || ''}</div>
+                        <div class="track-year">${track.year || ''}</div>
                     </div>
                     <button class="remove-track" onclick="listViewManager.removeTrack(${index})">×</button>
                 </div>`;
