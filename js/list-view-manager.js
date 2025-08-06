@@ -75,55 +75,14 @@ class ListViewManager {
             listElement.innerHTML = '<div class="empty-state">Click the + button or "ADD TO LIST" to save tracks you discover!</div>';
         } else {
             listElement.innerHTML = savedTracks.map((track, index) => {
-                const albumInfo = track.album ? track.album : '';
-                const yearInfo = track.year ? ` (${track.year})` : '';
-                const stationInfo = track.station ? ` • ${track.station}` : '';
+                // Format album info like hero view (Album • Year)
+                let albumText = '';
+                if (track.album && track.year) {
+                    albumText = `${track.album} • ${track.year}`;
+                } else if (track.album) {
+                    albumText = track.album;
+                } else if (track.year) {
+                    albumText = `(${track.year})`;
+                }
                 
-                return `<div class="saved-track-item">
-                    <div class="track-info-text">
-                        <strong>${track.artist} - ${track.title}${yearInfo}</strong><br>
-                        <small>${albumInfo}${stationInfo}</small>
-                    </div>
-                    <button class="remove-track" onclick="listViewManager.removeTrack(${index})">×</button>
-                </div>`;
-            }).join('');
-        }
-
-        console.log(`List View updated with ${savedTracks.length} tracks`);
-    }
-
-    removeTrack(index) {
-        if (trackManager) {
-            trackManager.removeTrack(index);
-            // Update display after removal
-            this.updateListDisplay();
-        }
-    }
-
-    clearAllTracks() {
-        if (trackManager) {
-            trackManager.clearSavedTracks();
-            // Update display after clearing
-            this.updateListDisplay();
-        }
-    }
-
-    // Called when a new track is saved
-    onTrackSaved() {
-        if (this.isListViewVisible) {
-            this.updateListDisplay();
-        }
-    }
-
-    // Called when tracks are updated (e.g., MusicBrainz data)
-    onTracksUpdated() {
-        if (this.isListViewVisible) {
-            this.updateListDisplay();
-        }
-    }
-
-    // Check if List View is currently visible
-    isVisible() {
-        return this.isListViewVisible;
-    }
-}
+                return `<div
