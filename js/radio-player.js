@@ -611,6 +611,25 @@ class RadioPlayer {
             return;
         }
 
+        // KEXP station-specific logic: Skip MusicBrainz if we have complete data
+        if (trackInfo.station === 'KEXP' && trackInfo.album && trackInfo.year) {
+            console.log('KEXP: Using station data, skipping MusicBrainz lookup');
+            
+            // Update display with KEXP's data
+            const albumElement = document.getElementById('albumInfo');
+            const heroAlbumElement = document.getElementById('heroAlbum');
+            const albumText = `${trackInfo.album} • ${trackInfo.year}`;
+            
+            albumElement.textContent = albumText;
+            heroAlbumElement.textContent = albumText;
+            return;
+        }
+
+        // For KEXP: Use MusicBrainz as fallback if station data is incomplete
+        if (trackInfo.station === 'KEXP' && (!trackInfo.album || !trackInfo.year)) {
+            console.log('KEXP: Station data incomplete, using MusicBrainz as fallback');
+        }
+
         console.log('Starting MusicBrainz lookup for:', trackInfo.artist, '-', trackInfo.title);
         
         try {
