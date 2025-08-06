@@ -9,6 +9,9 @@ class RadioPlayer {
         this.musicBrainzLookup = new MusicBrainzLookup();
         this.currentView = 'grid'; // 'grid', 'hero', or 'list'
         this.previousView = 'grid'; // Track previous view for smart switching
+        this.audioReady = false; // Track when audio is ready for new track info
+        this.pendingTrackInfo = null; // Hold track info until audio is ready
+        this.lastAudioTime = 0; // Track audio time for jump detection
         this.initializeMediaSession();
         
         // Show persistent controls immediately when app loads
@@ -415,25 +418,38 @@ class RadioPlayer {
         }
     }
 
+    displayTrackInfo(trackInfo) {
+        console.log('Displaying track info:', trackInfo);
+        
+        // Update grid view
+        document.getElementById('currentSong').textContent = trackInfo.displayText;
+        
+        // Update hero view
+        if (this.currentView === 'hero') {
+            this.updateHeroView(trackInfo);
+        }
+        
+        this.lastTrackInfo = trackInfo;
+        this.updateMediaSessionMetadata(trackInfo);
+        
+        // Start MusicBrainz lookup for album info (only for real tracks)
+        this.lookupAlbumInfo(trackInfo);
+    }
+
     updateNowPlaying() {
         const station = STATION_CONFIG[this.currentStationId];
         if (!station) return;
-
-        const songElement = document.getElementById('currentSong');
 
         // Handle stations without API
         if (!station.api) {
             const trackInfo = TrackParser.parseTrackInfo(this.currentStationId, null);
             if (!this.lastTrackInfo || trackInfo.displayText !== this.lastTrackInfo.displayText) {
-                songElement.textContent = trackInfo.displayText;
-                
-                // Update hero view
-                if (this.currentView === 'hero') {
-                    this.updateHeroView(trackInfo);
+                if (this.audioReady) {
+                    this.displayTrackInfo(trackInfo);
+                } else {
+                    this.pendingTrackInfo = trackInfo;
+                    console.log('Audio not ready, holding track info:', trackInfo);
                 }
-                
-                this.lastTrackInfo = trackInfo;
-                this.updateMediaSessionMetadata(trackInfo);
             }
             return;
         }
@@ -481,42 +497,34 @@ class RadioPlayer {
                     // Clear save success indicators when track changes
                     trackManager.clearSaveSuccess();
                     
-                    // Clear album info immediately when track changes (will be updated by MusicBrainz if valid)
-                    document.getElementById('albumInfo').textContent = '';
-                    document.getElementById('heroAlbum').textContent = '';
-                    
-                    // Update grid view
-                    songElement.textContent = trackInfo.displayText;
-                    
-                    // Update hero view
-                    if (this.currentView === 'hero') {
-                        this.updateHeroView(trackInfo);
+                    // Check if audio is ready to display new track info
+                    if (this.audioReady) {
+                        // Clear album info immediately when track changes (will be updated by MusicBrainz if valid)
+                        document.getElementById('albumInfo').textContent = '';
+                        document.getElementById('heroAlbum').textContent = '';
+                        
+                        this.displayTrackInfo(trackInfo);
+                    } else {
+                        // Hold the track info until audio is ready
+                        this.pendingTrackInfo = trackInfo;
+                        console.log('Audio not ready, holding track info:', trackInfo);
                     }
-                    
-                    this.lastTrackInfo = trackInfo;
-                    this.updateMediaSessionMetadata(trackInfo);
-                    
-                    // Start MusicBrainz lookup for album info (only for real tracks)
-                    this.lookupAlbumInfo(trackInfo);
                 }
             })
             .catch(error => {
                 console.log('API error for', this.currentStationId, ':', error);
                 const fallbackInfo = TrackParser.createFallbackTrack(this.currentStationId);
                 if (!this.lastTrackInfo || fallbackInfo.displayText !== this.lastTrackInfo.displayText) {
-                    // Clear album info for fallback tracks
-                    document.getElementById('albumInfo').textContent = '';
-                    document.getElementById('heroAlbum').textContent = '';
-                    
-                    songElement.textContent = fallbackInfo.displayText;
-                    
-                    // Update hero view with fallback
-                    if (this.currentView === 'hero') {
-                        this.updateHeroView(fallbackInfo);
+                    if (this.audioReady) {
+                        // Clear album info for fallback tracks
+                        document.getElementById('albumInfo').textContent = '';
+                        document.getElementById('heroAlbum').textContent = '';
+                        
+                        this.displayTrackInfo(fallbackInfo);
+                    } else {
+                        this.pendingTrackInfo = fallbackInfo;
+                        console.log('Audio not ready, holding fallback info:', fallbackInfo);
                     }
-                    
-                    this.lastTrackInfo = fallbackInfo;
-                    this.updateMediaSessionMetadata(fallbackInfo);
                 }
             });
     }
