@@ -159,25 +159,28 @@ body {
 }
 
 .stop-button {
-    background: transparent;
-    color: #6b7280;
-    border: 2px solid #d1d5db;
-    padding: 12px 30px;
-    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    color: #374151;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 12px 24px;
+    font-size: 11px;
     font-weight: 500;
-    border-radius: 25px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: 'Poppins', Arial, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .stop-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    background: rgba(107, 114, 128, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 1);
 }
 
 .save-track-button {
@@ -344,7 +347,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Persistent Controls Styles - Invisible Tray */
+/* Persistent Controls Styles - Now with background */
 .persistent-controls {
     position: fixed;
     bottom: 0;
@@ -356,7 +359,8 @@ body {
     justify-content: center;
     gap: 15px;
     padding: 15px 20px;
-    /* Removed all tray styling - no background, no border, no shadow */
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    backdrop-filter: blur(20px);
     z-index: 1001;
     transition: all 0.3s ease;
 }
@@ -620,19 +624,6 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.stop-button {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.stop-button:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
 .save-track-button {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -686,7 +677,7 @@ body {
     
     .stop-button {
         padding: 8px 20px !important;
-        font-size: 14px !important;
+        font-size: 10px !important;
     }
     
     .persistent-controls {
@@ -777,7 +768,7 @@ body {
     
     .stop-button {
         padding: 6px 15px !important;
-        font-size: 12px !important;
+        font-size: 9px !important;
     }
     
     .persistent-controls {
