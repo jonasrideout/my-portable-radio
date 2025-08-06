@@ -213,7 +213,7 @@ class RadioPlayer {
         gridView.classList.remove('hidden');
         
         // Update list view manager state
-        if (window.listViewManager) {
+        if (typeof listViewManager !== 'undefined') {
             listViewManager.isListViewVisible = false;
         }
         
@@ -240,7 +240,7 @@ class RadioPlayer {
         heroView.classList.remove('hidden');
         
         // Update list view manager state
-        if (window.listViewManager) {
+        if (typeof listViewManager !== 'undefined') {
             listViewManager.isListViewVisible = false;
         }
         
@@ -258,7 +258,7 @@ class RadioPlayer {
         this.currentView = 'list';
         
         // Use the list view manager to show the list view
-        if (window.listViewManager) {
+        if (typeof listViewManager !== 'undefined') {
             listViewManager.showListView();
         } else {
             console.error('List View Manager not found');
@@ -296,7 +296,7 @@ class RadioPlayer {
     viewSavedTracks() {
         if (this.currentView === 'list') {
             // If we're in list view and this is the "CLEAR ALL" button
-            if (window.listViewManager) {
+            if (typeof listViewManager !== 'undefined') {
                 listViewManager.clearAllTracks();
             }
         } else {
