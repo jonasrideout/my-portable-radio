@@ -493,8 +493,16 @@ class RadioPlayer {
                 const trackInfo = TrackParser.parseTrackInfo(this.currentStationId, data);
                 console.log(`${this.currentStationId} parsed track info:`, trackInfo);
                 
+                // Debug track comparison
+                console.log('Comparing tracks:', {
+                    lastTrack: this.lastTrackInfo,
+                    newTrack: trackInfo,
+                    areEqual: this.lastTrackInfo ? this.tracksEqual(trackInfo, this.lastTrackInfo) : false
+                });
+                
                 // Only update if track info has changed
                 if (!this.lastTrackInfo || !this.tracksEqual(trackInfo, this.lastTrackInfo)) {
+                    console.log('Track info changed - processing update');
                     // Clear save success indicators when track changes
                     trackManager.clearSaveSuccess();
                     
