@@ -125,7 +125,7 @@ class TrackManager {
     }
 
     updateSavedTracksList() {
-        // Update the old grid view saved tracks (if it exists)
+        // Update the old grid view saved tracks (if it exists) - this is legacy code
         const listElement = document.getElementById('savedTracksList');
         const countElement = document.getElementById('trackCount');
         
@@ -139,14 +139,32 @@ class TrackManager {
                 return;
             }
             
+            // Legacy format - keeping for backward compatibility if old grid view exists
             listElement.innerHTML = this.savedTracks.map((track, index) => {
-                const albumInfo = track.album ? track.album : '';
-                const yearInfo = track.year ? ` (${track.year})` : '';
+                // Format album info like hero view (Album • Year)
+                let albumText = '';
+                if (track.album && track.year) {
+                    albumText = `${track.album} • ${track.year}`;
+                } else if (track.album) {
+                    albumText = track.album;
+                } else if (track.year) {
+                    albumText = `(${track.year})`;
+                }
                 
                 return `<div class="saved-track-item">
                     <div class="track-info-text">
-                        <strong>${track.artist} - ${track.title}${yearInfo}</strong><br>
-                        <small>${albumInfo}</small>
+                        <div class="track-field">
+                            <div class="track-label">ARTIST</div>
+                            <div class="track-content">${track.artist || 'Unknown Artist'}</div>
+                        </div>
+                        <div class="track-field">
+                            <div class="track-label">SONG</div>
+                            <div class="track-content">${track.title || 'Unknown Track'}</div>
+                        </div>
+                        ${albumText ? `<div class="track-field">
+                            <div class="track-label">ALBUM</div>
+                            <div class="track-content">${albumText}</div>
+                        </div>` : ''}
                     </div>
                     <button class="remove-track" onclick="trackManager.removeTrack(${index})">×</button>
                 </div>`;
@@ -177,7 +195,7 @@ class TrackManager {
             const yearInfo = track.year ? ` (${track.year})` : '';
             const albumInfo = track.album ? ` [${track.album}]` : '';
             console.log('Download track:', track); // Debug logging
-            return `${track.artist} - ${track.title}${yearInfo}${albumInfo} (${track.station} - ${track.timestamp})`;
+            return `${track.artist} - ${track.title}${yearInfo}${albumInfo} (${track.timestamp})`;
         }).join('\n');
         
         const blob = new Blob([content], { type: 'text/plain' });
