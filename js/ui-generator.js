@@ -12,6 +12,11 @@ class UIGenerator {
             button.setAttribute('data-station', stationId);
             button.onclick = () => radioPlayer.toggleStation(stationId);
             
+            // Add hover listener for API warming
+            button.addEventListener('mouseenter', () => {
+                radioPlayer.warmStation(stationId);
+            });
+            
             button.innerHTML = `
                 <div class="logo-container">
                     <img src="${station.logo}" alt="${station.name}">
@@ -21,5 +26,10 @@ class UIGenerator {
             
             container.appendChild(button);
         });
+
+        // Warm all stations after buttons are created
+        setTimeout(() => {
+            radioPlayer.warmAllStations();
+        }, 100); // Small delay to let UI settle
     }
 }
