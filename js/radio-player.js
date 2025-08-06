@@ -98,9 +98,11 @@ class RadioPlayer {
         this.currentButton.classList.add('playing');
         this.currentStationId = stationId;
         this.lastTrackInfo = null;
+        this.audioReady = false; // Track audio readiness
+        this.pendingTrackInfo = null; // Hold track info until audio is ready
 
         // Clear both grid and hero displays immediately
-        document.getElementById('currentSong').textContent = '';
+        document.getElementById('currentSong').textContent = 'Loading...';
         document.getElementById('albumInfo').textContent = '';
         this.clearHeroDisplay();
 
@@ -110,9 +112,48 @@ class RadioPlayer {
         // Switch to hero view with smooth transition
         this.switchToHeroView(station);
 
-        // Create and configure audio
+        // Create and configure audio with event listeners
         this.currentAudio = new Audio(station.stream);
         this.currentAudio.volume = 0.8;
+
+        // Audio event listeners for track sync
+        this.currentAudio.addEventListener('loadstart', () => {
+            console.log('Audio loadstart - clearing track info for transition');
+            this.audioReady = false;
+            this.pendingTrackInfo = null;
+            
+            // Show loading state
+            document.getElementById('currentSong').textContent = 'Loading new track...';
+            document.getElementById('albumInfo').textContent = '';
+            if (this.currentView === 'hero') {
+                document.getElementById('heroArtist').textContent = 'Loading...';
+                document.getElementById('heroSong').textContent = 'Loading...';
+                document.getElementById('heroAlbum').textContent = '';
+            }
+        });
+
+        this.currentAudio.addEventListener('canplay', () => {
+            console.log('Audio canplay - ready to show new track info');
+            this.audioReady = true;
+            
+            // If we have pending track info, show it now
+            if (this.pendingTrackInfo) {
+                this.displayTrackInfo(this.pendingTrackInfo);
+                this.pendingTrackInfo = null;
+            }
+            
+            document.getElementById('pausePlayButton').textContent = 'PAUSE';
+            this.updatePersistentControlsText('PAUSE');
+        });
+
+        this.currentAudio.addEventListener('timeupdate', () => {
+            // Detect if audio restarted (potential track change)
+            if (this.currentAudio.currentTime < 2 && this.lastAudioTime > 10) {
+                console.log('Audio time jump detected - possible track change');
+                this.audioReady = false;
+            }
+            this.lastAudioTime = this.currentAudio.currentTime;
+        });
 
         this.currentAudio.oncanplaythrough = () => {
             document.getElementById('pausePlayButton').textContent = 'PAUSE';
