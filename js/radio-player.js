@@ -12,6 +12,7 @@ class RadioPlayer {
         this.audioReady = false; // Track when audio is ready for new track info
         this.pendingTrackInfo = null; // Hold track info until audio is ready
         this.lastAudioTime = 0; // Track audio time for jump detection
+        this.warmedStations = new Set(); // Track which stations have been warmed up
         this.initializeMediaSession();
         
         // Show persistent controls immediately when app loads
@@ -541,8 +542,54 @@ class RadioPlayer {
                track1.station === track2.station;
     }
 
-    getCurrentTrack() {
-        return this.lastTrackInfo;
+    // Pre-warm station APIs to improve responsiveness
+    warmAllStations() {
+        console.log('Warming up all station APIs...');
+        Object.keys(STATION_CONFIG).forEach(stationId => {
+            this.warmStation(stationId);
+        });
+    }
+
+    warmStation(stationId) {
+        // Skip if already warmed or no API
+        if (this.warmedStations.has(stationId)) {
+            return;
+        }
+
+        const station = STATION_CONFIG[stationId];
+        if (!station || !station.api) {
+            this.warmedStations.add(stationId);
+            return;
+        }
+
+        console.log(`Warming up ${stationId} API...`);
+
+        // Generate API URL (same logic as updateNowPlaying)
+        let apiUrl = station.api;
+        if (stationId === 'WFUV') {
+            apiUrl = station.api + Date.now();
+        }
+
+        // Make silent API call to warm up endpoint
+        fetch(apiUrl)
+            .then(response => {
+                if (station.parser === 'kexp' || station.parser === 'wbgo' || station.parser === 'wfuv' || station.parser === 'kvrx') {
+                    return response.json();
+                } else {
+                    return response.text();
+                }
+            })
+            .then(data => {
+                console.log(`${stationId} API warmed successfully`);
+                this.warmedStations.add(stationId);
+                
+                // Parse the data to further warm up the parsing pipeline
+                TrackParser.parseTrackInfo(stationId, data);
+            })
+            .catch(error => {
+                console.log(`${stationId} API warming failed (this is normal):`, error.message);
+                // Don't mark as warmed on failure, allow retry on hover
+            });
     }
 
     isRealTrackInfo(trackInfo) {
