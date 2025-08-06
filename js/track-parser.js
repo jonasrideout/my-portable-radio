@@ -52,8 +52,12 @@ class TrackParser {
                 const artist = track.artist || 'Unknown Artist';
                 const title = track.song || 'Unknown Track';
                 const album = track.album || null;
-                // Don't use KEXP year - let MusicBrainz handle it
-                const year = null;
+                
+                // Extract year from release_date if available
+                let year = null;
+                if (track.release_date) {
+                    year = TrackParser.extractYear(track.release_date);
+                }
 
                 return {
                     artist,
