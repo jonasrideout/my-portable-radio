@@ -501,12 +501,18 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: 'Poppins', Arial, sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    outline: none;
 }
 
 .persistent-button:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     background: rgba(255, 255, 255, 1);
+}
+
+.persistent-button:focus {
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .persistent-button:active {
