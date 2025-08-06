@@ -605,11 +605,15 @@ class RadioPlayer {
     }
 
     async lookupAlbumInfo(trackInfo) {
+        console.log('lookupAlbumInfo called with:', trackInfo);
+        
         // Only lookup album info for real tracks
         if (!this.isRealTrackInfo(trackInfo)) {
             console.log('Skipping MusicBrainz lookup for non-real track:', trackInfo);
             return;
         }
+        
+        console.log('Track passed isRealTrackInfo check');
 
         // KEXP station-specific logic: Use station data preferentially
         if (trackInfo.station === 'KEXP') {
@@ -665,6 +669,7 @@ class RadioPlayer {
             }
         }
 
+        // For non-KEXP stations or KEXP without album data
         console.log('Starting MusicBrainz lookup for:', trackInfo.artist, '-', trackInfo.title);
         
         try {
