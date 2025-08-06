@@ -347,7 +347,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Persistent Controls Styles - Now with background */
+/* Persistent Controls Styles - Now with fading background */
 .persistent-controls {
     position: fixed;
     bottom: 0;
@@ -359,7 +359,12 @@ body {
     justify-content: center;
     gap: 15px;
     padding: 15px 20px;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: linear-gradient(to right, 
+        transparent 0%, 
+        rgba(248, 250, 252, 0.95) 15%, 
+        rgba(226, 232, 240, 0.95) 85%, 
+        transparent 100%
+    );
     backdrop-filter: blur(20px);
     z-index: 1001;
     transition: all 0.3s ease;
