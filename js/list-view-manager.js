@@ -74,7 +74,16 @@ class ListViewManager {
         if (savedTracks.length === 0) {
             listElement.innerHTML = '<div class="empty-state">Click the + button or "ADD TO LIST" to save tracks you discover!</div>';
         } else {
-            listElement.innerHTML = savedTracks.map((track, index) => {
+            // Create header row
+            const headerHTML = `<div class="saved-tracks-list-header">
+                <div class="header-artist">ARTIST</div>
+                <div class="header-song">SONG</div>
+                <div class="header-album">ALBUM</div>
+                <div class="header-remove"></div>
+            </div>`;
+            
+            // Create track rows
+            const tracksHTML = savedTracks.map((track, index) => {
                 // Format album info like hero view (Album • Year)
                 let albumText = '';
                 if (track.album && track.year) {
@@ -87,22 +96,15 @@ class ListViewManager {
                 
                 return `<div class="saved-track-item">
                     <div class="track-info-text">
-                        <div class="track-field">
-                            <div class="track-label">ARTIST</div>
-                            <div class="track-content">${track.artist || 'Unknown Artist'}</div>
-                        </div>
-                        <div class="track-field">
-                            <div class="track-label">SONG</div>
-                            <div class="track-content">${track.title || 'Unknown Track'}</div>
-                        </div>
-                        ${albumText ? `<div class="track-field">
-                            <div class="track-label">ALBUM</div>
-                            <div class="track-content">${albumText}</div>
-                        </div>` : ''}
+                        <div class="track-artist">${track.artist || 'Unknown Artist'}</div>
+                        <div class="track-song">${track.title || 'Unknown Track'}</div>
+                        <div class="track-album">${albumText}</div>
                     </div>
                     <button class="remove-track" onclick="listViewManager.removeTrack(${index})">×</button>
                 </div>`;
             }).join('');
+            
+            listElement.innerHTML = headerHTML + tracksHTML;
         }
 
         console.log(`List View updated with ${savedTracks.length} tracks`);
