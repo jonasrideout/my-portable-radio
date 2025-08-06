@@ -504,11 +504,12 @@ class RadioPlayer {
                         document.getElementById('albumInfo').textContent = '';
                         document.getElementById('heroAlbum').textContent = '';
                         
+                        console.log('Audio ready - displaying track info immediately');
                         this.displayTrackInfo(trackInfo);
                     } else {
                         // Hold the track info until audio is ready
                         this.pendingTrackInfo = trackInfo;
-                        console.log('Audio not ready, holding track info:', trackInfo);
+                        console.log('Audio not ready, holding track info:', trackInfo.artist, '-', trackInfo.title);
                     }
                 }
             })
