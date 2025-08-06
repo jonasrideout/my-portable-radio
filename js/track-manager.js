@@ -40,7 +40,11 @@ class TrackManager {
             this.savedTracks.unshift(track);
             localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
-            this.updateListView();
+            
+            // Notify list view manager that tracks were updated
+            if (window.listViewManager) {
+                listViewManager.onTrackSaved();
+            }
             
             // Show success feedback on both buttons
             this.showSaveSuccess(button);
@@ -112,7 +116,11 @@ class TrackManager {
         if (updated) {
             localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
-            this.updateListView();
+            
+            // Notify list view manager that tracks were updated
+            if (window.listViewManager) {
+                listViewManager.onTracksUpdated();
+            }
         }
     }
 
@@ -146,42 +154,16 @@ class TrackManager {
         }
     }
 
-    updateListView() {
-        // Update the new dedicated List View
-        const listElement = document.getElementById('listSavedTracksList');
-        const countElement = document.getElementById('listTrackCount');
-        
-        if (countElement) {
-            countElement.textContent = '(' + this.savedTracks.length + ')';
-        }
-        
-        if (listElement) {
-            if (this.savedTracks.length === 0) {
-                listElement.innerHTML = '<div class="empty-state">Click the + button or "ADD TO LIST" to save tracks you discover!</div>';
-                return;
-            }
-            
-            listElement.innerHTML = this.savedTracks.map((track, index) => {
-                const albumInfo = track.album ? track.album : '';
-                const yearInfo = track.year ? ` (${track.year})` : '';
-                const stationInfo = track.station ? ` • ${track.station}` : '';
-                
-                return `<div class="saved-track-item">
-                    <div class="track-info-text">
-                        <strong>${track.artist} - ${track.title}${yearInfo}</strong><br>
-                        <small>${albumInfo}${stationInfo}</small>
-                    </div>
-                    <button class="remove-track" onclick="trackManager.removeTrack(${index})">×</button>
-                </div>`;
-            }).join('');
-        }
-    }
-
     removeTrack(index) {
         this.savedTracks.splice(index, 1);
         localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
         this.updateSavedTracksList();
-        this.updateListView();
+        
+        // Notify list view manager that tracks were updated
+        if (window.listViewManager) {
+            listViewManager.onTracksUpdated();
+        }
+        
         this.updateViewButtonState();
     }
 
@@ -218,7 +200,12 @@ class TrackManager {
             this.savedTracks = [];
             localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
             this.updateSavedTracksList();
-            this.updateListView();
+            
+            // Notify list view manager that tracks were cleared
+            if (window.listViewManager) {
+                listViewManager.onTracksUpdated();
+            }
+            
             this.updateViewButtonState();
         }
     }
