@@ -230,7 +230,7 @@ body {
     border-left: 1px solid #e5e7eb;
     border-right: 1px solid #e5e7eb;
     border-radius: 8px 8px 0 0;
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -253,7 +253,7 @@ body {
     border-bottom: 1px solid #f3f4f6;
     border-left: 1px solid #e5e7eb;
     border-right: 1px solid #e5e7eb;
-    font-size: 6px;
+    font-size: 11px;
     color: #374151;
     display: flex;
     align-items: center;
@@ -285,7 +285,7 @@ body {
 .track-song,
 .track-album {
     flex: 1;
-    font-size: 6px;
+    font-size: 11px;
     font-weight: 400;
     color: #0f172a;
     line-height: 1.3;
@@ -820,19 +820,19 @@ body {
     
     .saved-tracks-list-header {
         padding: 6px 16px;
-        font-size: 7px;
+        font-size: 10px;
         letter-spacing: 1.5px;
     }
     
     .saved-track-item {
         padding: 6px 16px;
-        font-size: 5px;
+        font-size: 9px;
     }
     
     .track-artist,
     .track-song,
     .track-album {
-        font-size: 5px;
+        font-size: 9px;
     }
     
     .track-info-text {
@@ -905,19 +905,19 @@ body {
     
     .saved-tracks-list-header {
         padding: 4px 14px;
-        font-size: 6px;
+        font-size: 8px;
         letter-spacing: 1px;
     }
     
     .saved-track-item {
         padding: 4px 14px;
-        font-size: 4px;
+        font-size: 7px;
     }
     
     .track-artist,
     .track-song,
     .track-album {
-        font-size: 4px;
+        font-size: 7px;
     }
     
     .track-info-text {
