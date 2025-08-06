@@ -85,4 +85,61 @@ class ListViewManager {
                     albumText = `(${track.year})`;
                 }
                 
-                return `<div
+                return `<div class="saved-track-item">
+                    <div class="track-info-text">
+                        <div class="track-field">
+                            <div class="track-label">ARTIST</div>
+                            <div class="track-content">${track.artist || 'Unknown Artist'}</div>
+                        </div>
+                        <div class="track-field">
+                            <div class="track-label">SONG</div>
+                            <div class="track-content">${track.title || 'Unknown Track'}</div>
+                        </div>
+                        ${albumText ? `<div class="track-field">
+                            <div class="track-label">ALBUM</div>
+                            <div class="track-content">${albumText}</div>
+                        </div>` : ''}
+                    </div>
+                    <button class="remove-track" onclick="listViewManager.removeTrack(${index})">×</button>
+                </div>`;
+            }).join('');
+        }
+
+        console.log(`List View updated with ${savedTracks.length} tracks`);
+    }
+
+    removeTrack(index) {
+        if (trackManager) {
+            trackManager.removeTrack(index);
+            // Update display after removal
+            this.updateListDisplay();
+        }
+    }
+
+    clearAllTracks() {
+        if (trackManager) {
+            trackManager.clearSavedTracks();
+            // Update display after clearing
+            this.updateListDisplay();
+        }
+    }
+
+    // Called when a new track is saved
+    onTrackSaved() {
+        if (this.isListViewVisible) {
+            this.updateListDisplay();
+        }
+    }
+
+    // Called when tracks are updated (e.g., MusicBrainz data)
+    onTracksUpdated() {
+        if (this.isListViewVisible) {
+            this.updateListDisplay();
+        }
+    }
+
+    // Check if List View is currently visible
+    isVisible() {
+        return this.isListViewVisible;
+    }
+}
