@@ -60,6 +60,7 @@
     box-sizing: border-box;
     position: relative;
     padding-bottom: 100px; /* Space for persistent controls */
+    margin: 0 auto; /* Center the container */
 }
 
 .main-grid {
