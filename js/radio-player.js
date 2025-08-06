@@ -440,6 +440,10 @@ class RadioPlayer {
                     // Clear save success indicators when track changes
                     trackManager.clearSaveSuccess();
                     
+                    // Clear album info immediately when track changes (will be updated by MusicBrainz if valid)
+                    document.getElementById('albumInfo').textContent = '';
+                    document.getElementById('heroAlbum').textContent = '';
+                    
                     // Update grid view
                     songElement.textContent = trackInfo.displayText;
                     
@@ -451,7 +455,7 @@ class RadioPlayer {
                     this.lastTrackInfo = trackInfo;
                     this.updateMediaSessionMetadata(trackInfo);
                     
-                    // Start MusicBrainz lookup for album info
+                    // Start MusicBrainz lookup for album info (only for real tracks)
                     this.lookupAlbumInfo(trackInfo);
                 }
             })
@@ -459,6 +463,10 @@ class RadioPlayer {
                 console.log('API error for', this.currentStationId, ':', error);
                 const fallbackInfo = TrackParser.createFallbackTrack(this.currentStationId);
                 if (!this.lastTrackInfo || fallbackInfo.displayText !== this.lastTrackInfo.displayText) {
+                    // Clear album info for fallback tracks
+                    document.getElementById('albumInfo').textContent = '';
+                    document.getElementById('heroAlbum').textContent = '';
+                    
                     songElement.textContent = fallbackInfo.displayText;
                     
                     // Update hero view with fallback
@@ -488,14 +496,22 @@ class RadioPlayer {
         return this.lastTrackInfo;
     }
 
+    isRealTrackInfo(trackInfo) {
+        // Check if we have real track info vs unknown/fallback data
+        return trackInfo && 
+               trackInfo.artist && 
+               trackInfo.title &&
+               trackInfo.artist !== 'Unknown Artist' && 
+               trackInfo.artist !== 'Live Radio' &&
+               trackInfo.title !== 'Unknown Track' &&
+               trackInfo.title !== 'Track Data Not Available' &&
+               !trackInfo.displayText.startsWith('Listening to');
+    }
+
     async lookupAlbumInfo(trackInfo) {
-        // Skip lookup for unknown tracks or stations without real data
-        if (!trackInfo || 
-            trackInfo.artist === 'Unknown Artist' || 
-            trackInfo.artist === 'Live Radio' ||
-            trackInfo.title === 'Unknown Track' ||
-            trackInfo.title === 'Track Data Not Available' ||
-            trackInfo.displayText.startsWith('Listening to')) {
+        // Only lookup album info for real tracks
+        if (!this.isRealTrackInfo(trackInfo)) {
+            console.log('Skipping MusicBrainz lookup for non-real track:', trackInfo);
             return;
         }
 
@@ -516,12 +532,20 @@ class RadioPlayer {
                     const albumText = `${albumInfo.album} • ${albumInfo.year}`;
                     albumElement.textContent = albumText;
                     heroAlbumElement.textContent = albumText;
-                    console.log('MusicBrainz lookup completed:', albumInfo);
+                    
+                    // UPDATE: Also update the lastTrackInfo object with MusicBrainz data
+                    this.lastTrackInfo.album = albumInfo.album;
+                    this.lastTrackInfo.year = albumInfo.year;
+                    
+                    console.log('MusicBrainz lookup completed and trackInfo updated:', albumInfo);
                 } else {
+                    // Keep album info empty if no results
                     albumElement.textContent = '';
                     heroAlbumElement.textContent = '';
                     console.log('MusicBrainz lookup found no results');
                 }
+            } else {
+                console.log('Track changed during MusicBrainz lookup, ignoring results');
             }
         } catch (error) {
             console.log('MusicBrainz lookup error:', error);
