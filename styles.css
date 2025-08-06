@@ -223,14 +223,15 @@ body {
 }
 
 .saved-track-item {
-    padding: 12px 16px;
+    padding: 16px 20px;
     border-bottom: 1px solid #f3f4f6;
     font-size: 14px;
     color: #374151;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     transition: background-color 0.2s ease;
+    line-height: 1.5;
 }
 
 .saved-track-item:last-child {
@@ -247,6 +248,30 @@ body {
 
 .track-info-text {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.track-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.track-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.track-content {
+    font-size: 14px;
+    font-weight: 500;
+    color: #0f172a;
+    line-height: 1.3;
 }
 
 .remove-track {
@@ -259,6 +284,8 @@ body {
     cursor: pointer;
     margin-left: 12px;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 
 .remove-track:hover {
@@ -274,33 +301,48 @@ body {
     font-size: 14px;
 }
 
-/* List View Styles */
+/* List View Styles - Fixed positioning */
 .list-view {
-    width: 100%;
-    max-width: 600px;
-    opacity: 1;
-    transform: scale(1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    opacity: 0;
+    transform: scale(0.95);
     transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    z-index: 999;
+    pointer-events: none;
+    overflow-y: auto;
+    padding: 20px;
+    padding-bottom: 100px; /* Space for persistent controls */
+    box-sizing: border-box;
 }
 
 .list-view.hidden {
     opacity: 0;
     transform: scale(0.95);
     pointer-events: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+}
+
+.list-view:not(.hidden) {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: all;
 }
 
 .list-content {
-    padding: 20px 0;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    min-height: 60vh;
+    min-height: calc(100vh - 140px); /* Account for padding and controls */
+    flex: 1;
 }
 
 .list-header {
@@ -308,6 +350,7 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
+    margin-top: 20px; /* Add some top spacing */
 }
 
 .list-header h2 {
@@ -738,13 +781,34 @@ body {
         margin-bottom: 6px;
     }
     
+    .list-view {
+        padding: 15px;
+        padding-bottom: 80px; /* Adjust for mobile persistent controls */
+    }
+    
     .list-content {
-        padding: 15px 0;
-        min-height: 50vh;
+        min-height: calc(100vh - 95px);
+    }
+    
+    .list-header {
+        margin-top: 10px;
     }
     
     .list-header h2 {
         font-size: 24px;
+    }
+    
+    .saved-track-item {
+        padding: 12px 16px;
+    }
+    
+    .track-label {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+    }
+    
+    .track-content {
+        font-size: 13px;
     }
 }
 
@@ -798,7 +862,29 @@ body {
         font-size: 20px;
     }
     
+    .list-view {
+        padding: 10px;
+        padding-bottom: 70px;
+    }
+    
+    .list-content {
+        min-height: calc(100vh - 80px);
+    }
+    
     .list-header h2 {
         font-size: 22px;
+    }
+    
+    .saved-track-item {
+        padding: 10px 14px;
+    }
+    
+    .track-label {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+    
+    .track-content {
+        font-size: 12px;
     }
 }
