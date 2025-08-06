@@ -65,6 +65,9 @@
     align-items: center;
     box-sizing: border-box;
     justify-content: space-between;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .controls-left {
@@ -109,6 +112,16 @@
     box-sizing: border-box;
 }
 
+.stations-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
 .radio-button {
     background: transparent;
     color: #6b7280;
@@ -128,6 +141,8 @@
     justify-content: center;
     gap: 5px;
     box-sizing: border-box;
+    width: calc(50% - 7.5px);
+    flex-shrink: 0;
 }
 
 .radio-button:hover {
