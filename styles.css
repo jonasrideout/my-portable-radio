@@ -112,14 +112,19 @@
     box-sizing: border-box;
 }
 
-.stations-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-    padding: 0;
+#stationsGrid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+}
+
+#stationsGrid .radio-button {
+    width: calc(50% - 7.5px) !important;
+    flex-shrink: 0 !important;
 }
 
 .radio-button {
