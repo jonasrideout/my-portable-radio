@@ -212,6 +212,11 @@ class RadioPlayer {
         // Show grid view
         gridView.classList.remove('hidden');
         
+        // Update list view manager state
+        if (window.listViewManager) {
+            listViewManager.isListViewVisible = false;
+        }
+        
         // Update button text
         this.updatePersistentButtonText();
     }
@@ -234,6 +239,11 @@ class RadioPlayer {
         listView.classList.add('hidden');
         heroView.classList.remove('hidden');
         
+        // Update list view manager state
+        if (window.listViewManager) {
+            listViewManager.isListViewVisible = false;
+        }
+        
         // Trigger animation after a brief delay to ensure DOM update
         setTimeout(() => {
             heroView.classList.add('active');
@@ -247,25 +257,16 @@ class RadioPlayer {
         this.previousView = this.currentView;
         this.currentView = 'list';
         
-        const gridView = document.getElementById('gridView');
-        const heroView = document.getElementById('heroView');
-        const listView = document.getElementById('listView');
-        
-        // Hide other views
-        gridView.classList.add('hidden');
-        heroView.classList.remove('active');
-        heroView.classList.add('hidden');
-        
-        // Show list view
-        listView.classList.remove('hidden');
+        // Use the list view manager to show the list view
+        if (window.listViewManager) {
+            listViewManager.showListView();
+        } else {
+            console.error('List View Manager not found');
+            return;
+        }
         
         // Update button text
         this.updatePersistentButtonText();
-        
-        // Update the list content
-        if (trackManager) {
-            trackManager.updateListView();
-        }
     }
 
     toggleViewMode() {
@@ -295,8 +296,8 @@ class RadioPlayer {
     viewSavedTracks() {
         if (this.currentView === 'list') {
             // If we're in list view and this is the "CLEAR ALL" button
-            if (trackManager) {
-                trackManager.clearSavedTracks();
+            if (window.listViewManager) {
+                listViewManager.clearAllTracks();
             }
         } else {
             // Switch to list view
