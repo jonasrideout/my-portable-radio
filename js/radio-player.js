@@ -500,8 +500,12 @@ class RadioPlayer {
                     areEqual: this.lastTrackInfo ? this.tracksEqual(trackInfo, this.lastTrackInfo) : false
                 });
                 
-                // Only update if track info has changed
-                if (!this.lastTrackInfo || !this.tracksEqual(trackInfo, this.lastTrackInfo)) {
+                // Only update if track info has changed (or it's WFMU with album data)
+                const shouldUpdate = !this.lastTrackInfo || 
+                                   !this.tracksEqual(trackInfo, this.lastTrackInfo) ||
+                                   (trackInfo.station === 'WFMU' && trackInfo.album);
+                
+                if (shouldUpdate) {
                     console.log('Track info changed - processing update');
                     // Clear save success indicators when track changes
                     trackManager.clearSaveSuccess();
