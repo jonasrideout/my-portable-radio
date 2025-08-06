@@ -290,12 +290,28 @@ class TrackParser {
             console.log('KVRX parser received data:', data, 'type:', typeof data);
             
             if (data && data.artist && data.track) {
-                const artist = data.artist || 'Unknown Artist';
-                const title = data.track || 'Unknown Track';
-                const album = data.album || null;
+                let artist = data.artist || 'Unknown Artist';
+                let title = data.track || 'Unknown Track';
+                let album = data.album || null;
+                let year = null;
+                
+                // Check if album info is embedded in the track title (format: "Song - Album")
+                if (!album && title.includes(' - ')) {
+                    const dashIndex = title.indexOf(' - ');
+                    const potentialAlbum = title.substring(dashIndex + 3).trim();
+                    
+                    // Only extract if the part after dash looks like an album (not too short)
+                    if (potentialAlbum.length > 2 && !potentialAlbum.match(/^(remix|extended|radio|edit|version)$/i)) {
+                        album = potentialAlbum;
+                        title = title.substring(0, dashIndex).trim();
+                        console.log('KVRX extracted album from title:', { title, album });
+                    }
+                }
                 
                 // Try to extract year from album name if available
-                const year = TrackParser.extractYear(album);
+                if (album) {
+                    year = TrackParser.extractYear(album);
+                }
 
                 // Create display text without show information
                 let displayText = `${artist} - ${title}`;
