@@ -1,4 +1,22 @@
-.persistent-button {
+.radio-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border-color: #cbd5e1;
+}
+
+.radio-button.playing {
+    color: #374151 !important;
+    border: 2px solid #ef4444 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    animation: redBorderGlow 2s infinite !important;
+}
+
+.radio-button.paused {
+    color: #374151 !important;
+    border: 2px solid #f59e0b !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    animation: orangeBorderGlow 2s infinite !important;
+}.persistent-button {
     display: flex;
     align-items: center;
     justify-content: center;
