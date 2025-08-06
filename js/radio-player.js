@@ -611,23 +611,58 @@ class RadioPlayer {
             return;
         }
 
-        // KEXP station-specific logic: Skip MusicBrainz if we have complete data
-        if (trackInfo.station === 'KEXP' && trackInfo.album && trackInfo.year) {
-            console.log('KEXP: Using station data, skipping MusicBrainz lookup');
-            
-            // Update display with KEXP's data
-            const albumElement = document.getElementById('albumInfo');
-            const heroAlbumElement = document.getElementById('heroAlbum');
-            const albumText = `${trackInfo.album} • ${trackInfo.year}`;
-            
-            albumElement.textContent = albumText;
-            heroAlbumElement.textContent = albumText;
-            return;
-        }
-
-        // For KEXP: Use MusicBrainz as fallback if station data is incomplete
-        if (trackInfo.station === 'KEXP' && (!trackInfo.album || !trackInfo.year)) {
-            console.log('KEXP: Station data incomplete, using MusicBrainz as fallback');
+        // KEXP station-specific logic: Use station data preferentially
+        if (trackInfo.station === 'KEXP') {
+            if (trackInfo.album && trackInfo.year) {
+                // Complete KEXP data - use it and skip MusicBrainz
+                console.log('KEXP: Complete station data, skipping MusicBrainz lookup');
+                const albumElement = document.getElementById('albumInfo');
+                const heroAlbumElement = document.getElementById('heroAlbum');
+                const albumText = `${trackInfo.album} • ${trackInfo.year}`;
+                albumElement.textContent = albumText;
+                heroAlbumElement.textContent = albumText;
+                return;
+            } else if (trackInfo.album && !trackInfo.year) {
+                // KEXP has album but no year - use MusicBrainz only for year lookup
+                console.log('KEXP: Has album, looking up year only via MusicBrainz');
+                try {
+                    const albumInfo = await this.musicBrainzLookup.lookupTrackInfo(trackInfo.artist, trackInfo.title);
+                    
+                    if (this.lastTrackInfo && 
+                        this.lastTrackInfo.artist === trackInfo.artist && 
+                        this.lastTrackInfo.title === trackInfo.title) {
+                        
+                        const albumElement = document.getElementById('albumInfo');
+                        const heroAlbumElement = document.getElementById('heroAlbum');
+                        
+                        if (albumInfo && albumInfo.year) {
+                            // Use KEXP album + MusicBrainz year
+                            const albumText = `${trackInfo.album} • ${albumInfo.year}`;
+                            albumElement.textContent = albumText;
+                            heroAlbumElement.textContent = albumText;
+                            this.lastTrackInfo.year = albumInfo.year; // Keep KEXP album, add year
+                            console.log('KEXP: Combined station album with MusicBrainz year:', {album: trackInfo.album, year: albumInfo.year});
+                        } else {
+                            // Just show KEXP album without year
+                            const albumText = trackInfo.album;
+                            albumElement.textContent = albumText;
+                            heroAlbumElement.textContent = albumText;
+                            console.log('KEXP: Using station album only, no year found');
+                        }
+                    }
+                } catch (error) {
+                    // Show KEXP album even if MusicBrainz fails
+                    const albumElement = document.getElementById('albumInfo');
+                    const heroAlbumElement = document.getElementById('heroAlbum');
+                    albumElement.textContent = trackInfo.album;
+                    heroAlbumElement.textContent = trackInfo.album;
+                    console.log('KEXP: MusicBrainz failed, using station album only');
+                }
+                return;
+            } else {
+                // No album from KEXP - use MusicBrainz completely
+                console.log('KEXP: No album from station, using MusicBrainz completely');
+            }
         }
 
         console.log('Starting MusicBrainz lookup for:', trackInfo.artist, '-', trackInfo.title);
