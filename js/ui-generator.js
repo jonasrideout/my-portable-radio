@@ -9,8 +9,6 @@ class UIGenerator {
             
             const button = document.createElement('button');
             button.className = 'radio-button';
-            button.style.width = 'calc(50% - 7.5px)';
-            button.style.flexShrink = '0';
             button.setAttribute('data-station', stationId);
             button.onclick = () => radioPlayer.toggleStation(stationId);
             
