@@ -10,6 +10,10 @@ class RadioPlayer {
         this.currentView = 'grid'; // 'grid', 'hero', or 'list'
         this.previousView = 'grid'; // Track previous view for smart switching
         this.initializeMediaSession();
+        
+        // Show persistent controls immediately when app loads
+        this.showPersistentControls();
+        this.updatePersistentButtonText();
     }
 
     initializeMediaSession() {
@@ -100,8 +104,7 @@ class RadioPlayer {
         document.getElementById('albumInfo').textContent = '';
         this.clearHeroDisplay();
 
-        // Show persistent controls and update button text
-        this.showPersistentControls();
+        // Update button text (controls are already visible)
         this.updatePersistentButtonText();
 
         // Switch to hero view with smooth transition
@@ -154,10 +157,11 @@ class RadioPlayer {
     }
 
     hidePersistentControls() {
-        const persistentControls = document.getElementById('persistentControls');
-        if (persistentControls) {
-            persistentControls.classList.add('hidden');
-        }
+        // Keep controls always visible - don't hide them anymore
+        // const persistentControls = document.getElementById('persistentControls');
+        // if (persistentControls) {
+        //     persistentControls.classList.add('hidden');
+        // }
     }
 
     updatePersistentControlsText(pauseText) {
@@ -355,8 +359,8 @@ class RadioPlayer {
         document.getElementById('albumInfo').textContent = '';
         this.clearHeroDisplay();
         
-        // Hide persistent controls
-        this.hidePersistentControls();
+        // Don't hide persistent controls anymore - keep them always visible
+        // this.hidePersistentControls();
         
         // Return to grid view if in hero mode
         if (this.currentView === 'hero') {
