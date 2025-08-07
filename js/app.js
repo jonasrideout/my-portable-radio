@@ -8,4 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     trackManager = new TrackManager();
     listViewManager = new ListViewManager();
     UIGenerator.generateStationButtons();
+    
+    // Make radioPlayer globally accessible for other modules
+    window.radioPlayer = radioPlayer;
 });
