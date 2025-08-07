@@ -8,9 +8,11 @@ class TrackManager {
 
     saveCurrentTrack() {
         console.log('saveCurrentTrack called');
+        console.log('window.radioPlayer:', window.radioPlayer);
+        console.log('radioPlayer methods:', window.radioPlayer ? Object.getOwnPropertyNames(Object.getPrototypeOf(window.radioPlayer)) : 'no radioPlayer');
         
-        // Use global radioPlayer reference
-        const currentTrack = window.radioPlayer ? window.radioPlayer.getCurrentTrack() : null;
+        // Use global radioPlayer reference - access lastTrackInfo directly
+        const currentTrack = window.radioPlayer ? window.radioPlayer.lastTrackInfo : null;
         const button = document.getElementById('saveTrackButton');
         const persistentButton = document.getElementById('persistentSaveButton');
         
