@@ -455,10 +455,14 @@ class RadioPlayer {
             return;
         }
 
-        // Generate fresh URL for stations that need it
+        // Generate fresh URL with cache-busting
         let apiUrl = station.api;
         if (this.currentStationId === 'WFUV') {
             apiUrl = station.api + Date.now();
+        } else if (station.api) {
+            // Add cache-busting to all stations to ensure fresh data
+            const separator = station.api.includes('?') ? '&' : '?';
+            apiUrl = station.api + separator + 't=' + Date.now();
         }
 
         fetch(apiUrl)
@@ -586,10 +590,14 @@ class RadioPlayer {
 
         console.log(`Warming up ${stationId} API...`);
 
-        // Generate API URL (same logic as updateNowPlaying)
+        // Generate API URL with cache-busting
         let apiUrl = station.api;
         if (stationId === 'WFUV') {
             apiUrl = station.api + Date.now();
+        } else if (station.api) {
+            // Add cache-busting to all stations to ensure fresh data
+            const separator = station.api.includes('?') ? '&' : '?';
+            apiUrl = station.api + separator + 't=' + Date.now();
         }
 
         // Make silent API call to warm up endpoint
