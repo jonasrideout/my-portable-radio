@@ -7,14 +7,16 @@ class TrackManager {
     }
 
     saveCurrentTrack() {
-        const currentTrack = radioPlayer.getCurrentTrack();
+        // Use global radioPlayer reference
+        const currentTrack = window.radioPlayer ? window.radioPlayer.getCurrentTrack() : null;
         const button = document.getElementById('saveTrackButton');
         const persistentButton = document.getElementById('persistentSaveButton');
         
         if (!currentTrack || 
             currentTrack.displayText.startsWith('Listening to') || 
             currentTrack.displayText === 'Track Data Not Available' || 
-            !radioPlayer.currentStationId) {
+            !window.radioPlayer || !window.radioPlayer.currentStationId) {
+            console.log('Cannot save track - no valid track data or player not ready');
             return;
         }
         
