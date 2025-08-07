@@ -7,18 +7,38 @@ class TrackManager {
     }
 
     saveCurrentTrack() {
+        console.log('saveCurrentTrack called');
+        
         // Use global radioPlayer reference
         const currentTrack = window.radioPlayer ? window.radioPlayer.getCurrentTrack() : null;
         const button = document.getElementById('saveTrackButton');
         const persistentButton = document.getElementById('persistentSaveButton');
         
-        if (!currentTrack || 
-            currentTrack.displayText.startsWith('Listening to') || 
-            currentTrack.displayText === 'Track Data Not Available' || 
-            !window.radioPlayer || !window.radioPlayer.currentStationId) {
-            console.log('Cannot save track - no valid track data or player not ready');
+        console.log('Current track:', currentTrack);
+        console.log('RadioPlayer exists:', !!window.radioPlayer);
+        console.log('Current station:', window.radioPlayer ? window.radioPlayer.currentStationId : 'none');
+        
+        if (!currentTrack) {
+            console.log('Cannot save track - no current track');
             return;
         }
+        
+        if (currentTrack.displayText.startsWith('Listening to')) {
+            console.log('Cannot save track - starts with "Listening to"');
+            return;
+        }
+        
+        if (currentTrack.displayText === 'Track Data Not Available') {
+            console.log('Cannot save track - track data not available');
+            return;
+        }
+        
+        if (!window.radioPlayer || !window.radioPlayer.currentStationId) {
+            console.log('Cannot save track - no player or station ID');
+            return;
+        }
+        
+        console.log('All checks passed - proceeding to save track');
         
         const track = {
             station: currentTrack.station,
