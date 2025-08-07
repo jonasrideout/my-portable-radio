@@ -345,10 +345,22 @@ class TrackParser {
         wrvu: (data, stationId) => {
             console.log('WRVU parser received data:', data, 'type:', typeof data);
             
-            if (data && data.artist && data.song) {
-                const artist = data.artist || 'Unknown Artist';
-                const title = data.song || 'Unknown Track';
-                const album = data.album || null;
+            // Handle case where JSON is returned as string
+            let parsedData = data;
+            if (typeof data === 'string') {
+                try {
+                    parsedData = JSON.parse(data);
+                    console.log('WRVU parsed JSON successfully:', parsedData);
+                } catch (e) {
+                    console.log('WRVU JSON parse failed:', e);
+                    return TrackParser.createFallbackTrack(stationId);
+                }
+            }
+            
+            if (parsedData && parsedData.artist && parsedData.song) {
+                const artist = parsedData.artist || 'Unknown Artist';
+                const title = parsedData.song || 'Unknown Track';
+                const album = parsedData.album || null;
                 
                 // WRVU doesn't seem to provide year in API, extract from album if present
                 const year = TrackParser.extractYear(album);
@@ -360,7 +372,7 @@ class TrackParser {
                     year,
                     station: stationId,
                     displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
-                    raw: data
+                    raw: parsedData
                 };
                 
                 console.log('WRVU parser returning:', result);
