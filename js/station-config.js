@@ -71,5 +71,14 @@ const STATION_CONFIG = {
         logo: 'https://kvrx.org/static/main/images/logo-yellow.png',
         pollInterval: 5000,
         parser: 'kvrx'
+    },
+    'WRVU': {
+        name: 'WRVU',
+        location: 'Nashville',
+        stream: 'https://streaming.wrvu.org/live',
+        api: 'https://playlists.wrvu.org/onnow/with_art/on_now_art.php',
+        logo: 'https://upload.wikimedia.org/wikipedia/en/1/18/WRVU_logo.png',
+        pollInterval: 4000,
+        parser: 'wrvu'
     }
 };
