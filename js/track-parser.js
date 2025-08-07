@@ -382,6 +382,46 @@ class TrackParser {
             console.log('WRVU parser: no valid data found, using fallback');
             return TrackParser.createFallbackTrack(stationId);
         },
+        wsum: (data, stationId) => {
+            console.log('WSUM parser received data:', data, 'type:', typeof data);
+            
+            // Handle case where JSON is returned as string
+            let parsedData = data;
+            if (typeof data === 'string') {
+                try {
+                    parsedData = JSON.parse(data);
+                    console.log('WSUM parsed JSON successfully:', parsedData);
+                } catch (e) {
+                    console.log('WSUM JSON parse failed:', e);
+                    return TrackParser.createFallbackTrack(stationId);
+                }
+            }
+            
+            if (parsedData && parsedData.artist && parsedData.song) {
+                const artist = parsedData.artist || 'Unknown Artist';
+                const title = parsedData.song || 'Unknown Track';
+                const album = parsedData.release || null; // WSUM uses "release" for album
+                
+                // Extract year from album/release name if present
+                const year = TrackParser.extractYear(album);
+
+                const result = {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                    raw: parsedData
+                };
+                
+                console.log('WSUM parser returning:', result);
+                return result;
+            }
+            
+            console.log('WSUM parser: no valid data found, using fallback');
+            return TrackParser.createFallbackTrack(stationId);
+        },
         none: (data, stationId) => {
             return {
                 artist: 'Live Radio',
