@@ -231,22 +231,220 @@ class TrackManager {
             return;
         }
         
-        const content = this.savedTracks.map(track => {
-            const yearInfo = track.year ? ` (${track.year})` : '';
-            const albumInfo = track.album ? ` [${track.album}]` : '';
-            console.log('Download track:', track); // Debug logging
-            return `${track.artist} - ${track.title}${yearInfo}${albumInfo} (${track.timestamp})`;
-        }).join('\n');
+        this.generatePremiumPDF();
+    }
+
+    generatePremiumPDF() {
+        // Create the PDF HTML content
+        const pdfContent = this.createPDFHTML();
         
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'saved-radio-tracks.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        // Create a new window with the PDF content
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(pdfContent);
+        printWindow.document.close();
+        
+        // Wait for content to load, then trigger print
+        printWindow.onload = function() {
+            setTimeout(() => {
+                printWindow.print();
+                // Close the window after printing
+                printWindow.onafterprint = function() {
+                    printWindow.close();
+                };
+            }, 250);
+        };
+    }
+
+    createPDFHTML() {
+        const currentDate = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const tracksHTML = this.savedTracks.map(track => {
+            const saveDate = new Date(track.timestamp).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            
+            return `
+                <tr>
+                    <td>${track.artist || 'Unknown Artist'}</td>
+                    <td>${track.title || 'Unknown Track'}</td>
+                    <td>${track.album || ''}</td>
+                    <td>${track.year || ''}</td>
+                    <td class="date-column">${saveDate}</td>
+                </tr>
+            `;
+        }).join('');
+
+        return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>My Portable Radio - Saved Tracks</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+            <style>
+                @page {
+                    margin: 0.75in;
+                    size: A4;
+                }
+                
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Poppins', Arial, sans-serif;
+                    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                    min-height: 100vh;
+                    padding: 40px;
+                    color: #374151;
+                }
+                
+                .pdf-container {
+                    max-width: 100%;
+                    margin: 0 auto;
+                    background: rgba(255, 255, 255, 0.95);
+                    border-radius: 12px;
+                    padding: 40px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                    backdrop-filter: blur(10px);
+                }
+                
+                .pdf-header {
+                    text-align: center;
+                    margin-bottom: 40px;
+                    border-bottom: 2px solid #e2e8f0;
+                    padding-bottom: 30px;
+                }
+                
+                .pdf-title {
+                    font-size: 32px;
+                    font-weight: 600;
+                    color: #1f2937;
+                    margin-bottom: 8px;
+                    letter-spacing: -0.5px;
+                }
+                
+                .pdf-subtitle {
+                    font-size: 14px;
+                    color: #6b7280;
+                    font-weight: 400;
+                }
+                
+                .pdf-meta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    font-size: 14px;
+                    color: #6b7280;
+                }
+                
+                .tracks-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                
+                .tracks-table thead th {
+                    background: #f9fafb;
+                    padding: 16px 12px;
+                    text-align: left;
+                    font-size: 11px;
+                    font-weight: 600;
+                    letter-spacing: 1px;
+                    text-transform: uppercase;
+                    color: #64748b;
+                    border: 1px solid #e5e7eb;
+                }
+                
+                .tracks-table tbody td {
+                    padding: 14px 12px;
+                    border: 1px solid #f3f4f6;
+                    font-size: 11px;
+                    line-height: 1.4;
+                    color: #0f172a;
+                }
+                
+                .tracks-table tbody tr:nth-child(even) {
+                    background: #f9fafb;
+                }
+                
+                .tracks-table tbody tr:hover {
+                    background: #f3f4f6;
+                }
+                
+                .date-column {
+                    color: #6b7280;
+                    font-size: 10px;
+                    white-space: nowrap;
+                }
+                
+                .pdf-footer {
+                    margin-top: 40px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #9ca3af;
+                    border-top: 1px solid #e5e7eb;
+                    padding-top: 20px;
+                }
+                
+                @media print {
+                    body {
+                        background: white;
+                        padding: 0;
+                    }
+                    
+                    .pdf-container {
+                        background: white;
+                        box-shadow: none;
+                        border-radius: 0;
+                        padding: 20px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="pdf-container">
+                <header class="pdf-header">
+                    <h1 class="pdf-title">My Portable Radio</h1>
+                    <p class="pdf-subtitle">Saved Tracks Collection</p>
+                </header>
+                
+                <div class="pdf-meta">
+                    <span><strong>${this.savedTracks.length}</strong> tracks saved</span>
+                    <span>Generated on ${currentDate}</span>
+                </div>
+                
+                <table class="tracks-table">
+                    <thead>
+                        <tr>
+                            <th>Artist</th>
+                            <th>Song</th>
+                            <th>Album</th>
+                            <th>Year</th>
+                            <th>Saved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tracksHTML}
+                    </tbody>
+                </table>
+                
+                <footer class="pdf-footer">
+                    <p>Discovered through independent radio stations • myportableradio.app</p>
+                </footer>
+            </div>
+        </body>
+        </html>
+        `;
     }
 
     clearSavedTracks() {
