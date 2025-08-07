@@ -342,6 +342,34 @@ class TrackParser {
             console.log('KVRX parser: no valid data found, using fallback');
             return TrackParser.createFallbackTrack(stationId);
         },
+        wrvu: (data, stationId) => {
+            console.log('WRVU parser received data:', data, 'type:', typeof data);
+            
+            if (data && data.artist && data.song) {
+                const artist = data.artist || 'Unknown Artist';
+                const title = data.song || 'Unknown Track';
+                const album = data.album || null;
+                
+                // WRVU doesn't seem to provide year in API, extract from album if present
+                const year = TrackParser.extractYear(album);
+
+                const result = {
+                    artist,
+                    title,
+                    album,
+                    year,
+                    station: stationId,
+                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                    raw: data
+                };
+                
+                console.log('WRVU parser returning:', result);
+                return result;
+            }
+            
+            console.log('WRVU parser: no valid data found, using fallback');
+            return TrackParser.createFallbackTrack(stationId);
+        },
         none: (data, stationId) => {
             return {
                 artist: 'Live Radio',
