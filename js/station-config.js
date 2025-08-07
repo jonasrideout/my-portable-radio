@@ -80,5 +80,14 @@ const STATION_CONFIG = {
         logo: 'https://upload.wikimedia.org/wikipedia/en/1/18/WRVU_logo.png',
         pollInterval: 4000,
         parser: 'wrvu'
+    },
+    'WSUM': {
+        name: 'WSUM',
+        location: 'Madison',
+        stream: 'https://ice23.securenetsystems.net/WSUMFM',
+        api: 'https://ex.wsum.org/spinitron-api/recent-track/FM',
+        logo: 'https://wsum.org/wp-content/uploads/2024/05/wsum-alternate-logo-1.png',
+        pollInterval: 4000,
+        parser: 'wsum'
     }
 };
