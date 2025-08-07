@@ -540,19 +540,8 @@ class RadioPlayer {
             })
             .catch(error => {
                 console.log('API error for', this.currentStationId, ':', error);
-                const fallbackInfo = TrackParser.createFallbackTrack(this.currentStationId);
-                if (!this.lastTrackInfo || fallbackInfo.displayText !== this.lastTrackInfo.displayText) {
-                    if (this.audioReady) {
-                        // Clear album info for fallback tracks
-                        document.getElementById('albumInfo').textContent = '';
-                        document.getElementById('heroAlbum').textContent = '';
-                        
-                        this.displayTrackInfo(fallbackInfo);
-                    } else {
-                        this.pendingTrackInfo = fallbackInfo;
-                        console.log('Audio not ready, holding fallback info:', fallbackInfo);
-                    }
-                }
+                // Don't update display on API errors - keep showing last good track info
+                console.log('Keeping previous track info due to API error');
             });
     }
 
