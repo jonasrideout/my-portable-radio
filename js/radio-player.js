@@ -726,11 +726,25 @@ class RadioPlayer {
                     this.lastTrackInfo.year = albumInfo.year;
                     
                     console.log('MusicBrainz lookup completed and trackInfo updated:', albumInfo);
+                } else if (albumInfo && albumInfo.year && trackInfo.album) {
+                    // MusicBrainz found year but not album - combine station album + MusicBrainz year
+                    const albumText = `${trackInfo.album} • ${albumInfo.year}`;
+                    albumElement.textContent = albumText;
+                    heroAlbumElement.textContent = albumText;
+                    this.lastTrackInfo.year = albumInfo.year;
+                    
+                    console.log('Combined station album with MusicBrainz year:', {album: trackInfo.album, year: albumInfo.year});
                 } else {
-                    // Keep album info empty if no results
-                    albumElement.textContent = '';
-                    heroAlbumElement.textContent = '';
-                    console.log('MusicBrainz lookup found no results');
+                    // MusicBrainz found nothing - keep station album data if we have it
+                    if (trackInfo.album) {
+                        albumElement.textContent = trackInfo.album;
+                        heroAlbumElement.textContent = trackInfo.album;
+                        console.log('MusicBrainz found no results, keeping station album:', trackInfo.album);
+                    } else {
+                        albumElement.textContent = '';
+                        heroAlbumElement.textContent = '';
+                        console.log('MusicBrainz found no results, no station album available');
+                    }
                 }
             } else {
                 console.log('Track changed during MusicBrainz lookup, ignoring results');
