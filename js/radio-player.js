@@ -494,16 +494,25 @@ class RadioPlayer {
                 console.log(`${this.currentStationId} parsed track info:`, trackInfo);
                 
                 // Debug track comparison
-                console.log('Comparing tracks:', {
-                    lastTrack: this.lastTrackInfo,
-                    newTrack: trackInfo,
-                    areEqual: this.lastTrackInfo ? this.tracksEqual(trackInfo, this.lastTrackInfo) : false
+                const isTrackEqual = this.lastTrackInfo ? this.tracksEqual(trackInfo, this.lastTrackInfo) : false;
+                const wfmuBypass = (trackInfo.station === 'WFMU' && trackInfo.album);
+                const wdvxBypass = (trackInfo.station === 'WDVX' && trackInfo.artist !== 'Unknown Artist' && !trackInfo.album);
+                
+                console.log('Update decision:', {
+                    hasLastTrack: !!this.lastTrackInfo,
+                    isTrackEqual,
+                    wfmuBypass,
+                    wdvxBypass,
+                    station: trackInfo.station,
+                    artist: trackInfo.artist,
+                    album: trackInfo.album
                 });
                 
-                // Only update if track info has changed (or it's WFMU with album data)
+                // Only update if track info has changed (or it's WFMU/WDVX needing MusicBrainz help)
                 const shouldUpdate = !this.lastTrackInfo || 
-                                   !this.tracksEqual(trackInfo, this.lastTrackInfo) ||
-                                   (trackInfo.station === 'WFMU' && trackInfo.album);
+                                   !isTrackEqual ||
+                                   wfmuBypass ||
+                                   wdvxBypass;
                 
                 if (shouldUpdate) {
                     console.log('Track info changed - processing update');
