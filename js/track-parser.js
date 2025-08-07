@@ -118,17 +118,42 @@ class TrackParser {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(data, 'text/xml');
             
-            const artistEl = xmlDoc.querySelector('artist');
-            const titleEl = xmlDoc.querySelector('title');
+            // Try to get the real recording artist and title from the song field
+            const songEl = xmlDoc.querySelector('song');
+            let artist = 'Unknown Artist';
+            let title = 'Unknown Track';
+            
+            if (songEl) {
+                const songText = TrackParser.cleanText(songEl.textContent);
+                console.log('WFMU song field:', songText);
+                
+                // Parse format: "Song Title" by Artist Name
+                const byMatch = songText.match(/^"([^"]+)"\s+by\s+(.+)$/);
+                if (byMatch) {
+                    title = byMatch[1].trim();
+                    artist = byMatch[2].trim();
+                    console.log('WFMU extracted from song field:', { artist, title });
+                } else {
+                    // Fallback to separate artist/title fields if song parsing fails
+                    const artistEl = xmlDoc.querySelector('artist');
+                    const titleEl = xmlDoc.querySelector('title');
+                    
+                    if (artistEl && titleEl) {
+                        artist = TrackParser.cleanText(artistEl.textContent);
+                        title = TrackParser.cleanText(titleEl.textContent);
+                        console.log('WFMU using fallback artist/title fields:', { artist, title });
+                    }
+                }
+            }
+            
+            // Get album info
             const albumEl = xmlDoc.querySelector('album');
-            const yearEl = xmlDoc.querySelector('year');
+            const album = albumEl ? TrackParser.cleanText(albumEl.textContent) : null;
+            
+            // Extract year from album name if present
+            const year = TrackParser.extractYear(album);
 
-            if (artistEl && titleEl) {
-                const artist = TrackParser.cleanText(artistEl.textContent);
-                const title = TrackParser.cleanText(titleEl.textContent);
-                const album = albumEl ? TrackParser.cleanText(albumEl.textContent) : null;
-                const year = yearEl ? TrackParser.extractYear(yearEl.textContent) : TrackParser.extractYear(album);
-
+            if (artist !== 'Unknown Artist' && title !== 'Unknown Track') {
                 return {
                     artist,
                     title,
@@ -136,32 +161,8 @@ class TrackParser {
                     year,
                     station: stationId,
                     displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
-                    raw: { artist, title, album, year }
+                    raw: { artist, title, album, year, originalSong: songEl ? songEl.textContent : null }
                 };
-            }
-
-            // Fallback to song element
-            const songEl = xmlDoc.querySelector('song');
-            if (songEl) {
-                const songText = TrackParser.cleanText(songEl.textContent);
-                const dashIndex = songText.indexOf(' - ');
-                
-                if (dashIndex > 0) {
-                    const artist = songText.substring(0, dashIndex);
-                    const titlePart = songText.substring(dashIndex + 3);
-                    const year = TrackParser.extractYear(titlePart);
-                    const title = titlePart.replace(/\s*\(\d{4}\)\s*/, ''); // Remove year from title
-
-                    return {
-                        artist,
-                        title,
-                        album: null,
-                        year,
-                        station: stationId,
-                        displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
-                        raw: { songText }
-                    };
-                }
             }
 
             return TrackParser.createFallbackTrack(stationId);
@@ -257,6 +258,7 @@ class TrackParser {
                         // If both parts are the same, use just one
                         if (firstPart === secondPart) {
                             title = firstPart;
+                            console.log('WDVX removed duplicate title:', { original: titlePart, cleaned: title });
                         }
                     }
 
