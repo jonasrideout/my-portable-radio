@@ -243,16 +243,8 @@ class TrackManager {
         printWindow.document.write(pdfContent);
         printWindow.document.close();
         
-        // Wait for content to load, then trigger print
-        printWindow.onload = function() {
-            setTimeout(() => {
-                printWindow.print();
-                // Close the window after printing
-                printWindow.onafterprint = function() {
-                    printWindow.close();
-                };
-            }, 250);
-        };
+        // Don't auto-print - let user choose via buttons
+        printWindow.focus();
     }
 
     createPDFHTML() {
@@ -328,14 +320,49 @@ class TrackManager {
                     font-size: 32px;
                     font-weight: 600;
                     color: #1f2937;
-                    margin-bottom: 8px;
+                    margin-bottom: 0;
                     letter-spacing: -0.5px;
                 }
                 
-                .pdf-subtitle {
-                    font-size: 14px;
-                    color: #6b7280;
-                    font-weight: 400;
+                .pdf-actions {
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-bottom: 40px;
+                    padding-bottom: 30px;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .action-button {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #374151;
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    padding: 12px 24px;
+                    font-size: 11px;
+                    font-weight: 500;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    font-family: 'Poppins', Arial, sans-serif;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    text-decoration: none;
+                    min-width: 120px;
+                }
+                
+                .action-button:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                    background: rgba(255, 255, 255, 1);
+                }
+                
+                .action-button:active {
+                    transform: translateY(0);
+                    transition: transform 0.1s ease;
                 }
                 
                 .pdf-meta {
@@ -408,15 +435,33 @@ class TrackManager {
                         border-radius: 0;
                         padding: 20px;
                     }
+                    
+                    .pdf-actions {
+                        display: none;
+                    }
                 }
             </style>
+            <script>
+                function printPDF() {
+                    window.print();
+                }
+                
+                function downloadPDF() {
+                    // Trigger browser's save as PDF functionality
+                    window.print();
+                }
+            </script>
         </head>
         <body>
             <div class="pdf-container">
                 <header class="pdf-header">
-                    <h1 class="pdf-title">My Portable Radio</h1>
-                    <p class="pdf-subtitle">Saved Tracks Collection</p>
+                    <h1 class="pdf-title">Saved Tracks</h1>
                 </header>
+                
+                <div class="pdf-actions">
+                    <button class="action-button" onclick="printPDF()">Print</button>
+                    <button class="action-button" onclick="downloadPDF()">Save as PDF</button>
+                </div>
                 
                 <div class="pdf-meta">
                     <span><strong>${this.savedTracks.length}</strong> tracks saved</span>
@@ -439,7 +484,7 @@ class TrackManager {
                 </table>
                 
                 <footer class="pdf-footer">
-                    <p>Discovered through independent radio stations • myportableradio.app</p>
+                    <p>Discovered via My Portable Radio | https://my-portable-radio.vercel.app</p>
                 </footer>
             </div>
         </body>
