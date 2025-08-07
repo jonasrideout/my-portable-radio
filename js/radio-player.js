@@ -682,7 +682,27 @@ class RadioPlayer {
             }
         }
 
-        // For non-KEXP stations or KEXP without album data
+        // For non-KEXP stations: Show station album data immediately, then enhance with MusicBrainz
+        if (trackInfo.album) {
+            // Display station album immediately
+            const albumElement = document.getElementById('albumInfo');
+            const heroAlbumElement = document.getElementById('heroAlbum');
+            
+            if (trackInfo.year) {
+                // Station provides both album and year
+                const albumText = `${trackInfo.album} • ${trackInfo.year}`;
+                albumElement.textContent = albumText;
+                heroAlbumElement.textContent = albumText;
+                console.log('Displaying complete station album data:', albumText);
+                return; // Skip MusicBrainz
+            } else {
+                // Station provides album but no year - show album, then lookup year
+                albumElement.textContent = trackInfo.album;
+                heroAlbumElement.textContent = trackInfo.album;
+                console.log('Displaying station album, looking up year via MusicBrainz:', trackInfo.album);
+            }
+        }
+
         console.log('Starting MusicBrainz lookup for:', trackInfo.artist, '-', trackInfo.title);
         
         try {
