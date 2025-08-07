@@ -540,8 +540,10 @@ class RadioPlayer {
             })
             .catch(error => {
                 console.log('API error for', this.currentStationId, ':', error);
-                // Don't update display on API errors - keep showing last good track info
+                // Don't parse or update anything on API errors - just keep showing last good track info
                 console.log('Keeping previous track info due to API error');
+                // Exit early - don't let any parser run with bad data
+                return;
             });
     }
 
