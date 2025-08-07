@@ -15,7 +15,7 @@ const STATION_CONFIG = {
         stream: 'https://stream0.wfmu.org/freeform-128k',
         api: 'https://api.allorigins.win/raw?url=https://wfmu.org/currentliveshows.php?xml=1&c=1',
         logo: 'https://wfmu.org/images/logo_bw.jpg',
-        pollInterval: 5000,
+        pollInterval: 4000,
         parser: 'wfmu'
     },
     'WBGO': {
@@ -33,7 +33,7 @@ const STATION_CONFIG = {
         stream: 'http://wdvx.streamguys1.com/live',
         api: 'https://api.allorigins.win/raw?url=https://wdvx.streamguys1.com/status.xsl',
         logo: 'https://wdvx-radio.myshopify.com/cdn/shop/files/WDVX-No-Frequency-Logo-MAIN_1.png',
-        pollInterval: 7000,
+        pollInterval: 4000,
         parser: 'wdvx'
     },
     'KDHX': {
@@ -60,7 +60,7 @@ const STATION_CONFIG = {
         stream: 'https://ice41.securenetsystems.net/KNTU?playSessionID=8BD76818-4846-410C-BE9173D6940B8BEC',
         api: 'https://streamdb4web.securenetsystems.net/player_status_update/KNTU.xml',
         logo: 'https://upload.wikimedia.org/wikipedia/en/4/4f/KNTU-logo.png',
-        pollInterval: 5000,
+        pollInterval: 4000,
         parser: 'kntu'
     },
     'KVRX': {
@@ -69,7 +69,7 @@ const STATION_CONFIG = {
         stream: 'https://streams.kut.org/5020_192.mp3',
         api: 'https://corsproxy.io/?https://kvrx.org/now_playing/track/',
         logo: 'https://kvrx.org/static/main/images/logo-yellow.png',
-        pollInterval: 5000,
+        pollInterval: 4000,
         parser: 'kvrx'
     },
     'WRVU': {
@@ -78,7 +78,7 @@ const STATION_CONFIG = {
         stream: 'https://streaming.wrvu.org/live',
         api: 'https://playlists.wrvu.org/onnow/with_art/on_now_art.php',
         logo: 'https://upload.wikimedia.org/wikipedia/en/1/18/WRVU_logo.png',
-        pollInterval: 4000,
+        pollInterval: 3000,
         parser: 'wrvu'
     },
     'WSUM': {
@@ -87,7 +87,7 @@ const STATION_CONFIG = {
         stream: 'https://ice23.securenetsystems.net/WSUMFM',
         api: 'https://ex.wsum.org/spinitron-api/recent-track/FM',
         logo: 'https://wsum.org/wp-content/uploads/2024/05/wsum-alternate-logo-1.png',
-        pollInterval: 4000,
+        pollInterval: 3000,
         parser: 'wsum'
     }
 };
