@@ -40,7 +40,29 @@ class TrackManager {
             return;
         }
         
-        console.log('All checks passed - proceeding to save track');
+        console.log('All checks passed - checking if track is already saved');
+        
+        // Check if track is already saved
+        const existingIndex = this.savedTracks.findIndex(t => 
+            t.station === currentTrack.station && 
+            t.artist === currentTrack.artist && 
+            t.title === currentTrack.title
+        );
+        
+        if (existingIndex >= 0) {
+            // Track exists - remove it
+            console.log('Track already saved - removing from list');
+            this.removeTrack(existingIndex);
+            
+            // Update button states to normal
+            this.clearSaveSuccess();
+            
+            // Update view button state
+            this.updateViewButtonState();
+            return;
+        }
+        
+        console.log('Track not saved yet - adding to list');
         
         const track = {
             station: currentTrack.station,
@@ -53,30 +75,24 @@ class TrackManager {
             raw: currentTrack.raw
         };
         
-        // Check for duplicates
-        const isDuplicate = this.savedTracks.some(t => 
-            t.station === track.station && 
-            t.artist === track.artist && 
-            t.title === track.title
-        );
+        // Add track to beginning of list
+        this.savedTracks.unshift(track);
+        localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
+        this.updateSavedTracksList();
         
-        if (!isDuplicate) {
-            this.savedTracks.unshift(track);
-            localStorage.setItem('savedTracks', JSON.stringify(this.savedTracks));
-            this.updateSavedTracksList();
-            
-            // Notify list view manager that tracks were updated
-            if (window.listViewManager) {
-                listViewManager.onTrackSaved();
-            }
-            
-            // Show success feedback on both buttons
-            this.showSaveSuccess(button);
-            this.showSaveSuccess(persistentButton);
-            
-            // Update view button state
-            this.updateViewButtonState();
+        // Notify list view manager that tracks were updated
+        if (window.listViewManager) {
+            listViewManager.onTrackSaved();
         }
+        
+        // Show success feedback on both buttons
+        this.showSaveSuccess(button);
+        this.showSaveSuccess(persistentButton);
+        
+        // Update view button state
+        this.updateViewButtonState();
+        
+        console.log('Track saved successfully');
     }
 
     showSaveSuccess(button) {
