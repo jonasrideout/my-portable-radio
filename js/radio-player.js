@@ -444,7 +444,7 @@ class RadioPlayer {
         // Handle stations without API
         if (!station.api) {
             const trackInfo = TrackParser.parseTrackInfo(this.currentStationId, null);
-            if (!this.lastTrackInfo || trackInfo.displayText !== this.lastTrackInfo.displayText) {
+            if (trackInfo && (!this.lastTrackInfo || trackInfo.displayText !== this.lastTrackInfo.displayText)) {
                 if (this.audioReady) {
                     this.displayTrackInfo(trackInfo);
                 } else {
@@ -496,6 +496,12 @@ class RadioPlayer {
                 
                 const trackInfo = TrackParser.parseTrackInfo(this.currentStationId, data);
                 console.log(`${this.currentStationId} parsed track info:`, trackInfo);
+                
+                // Skip update if parser returned null (invalid data)
+                if (!trackInfo) {
+                    console.log('Parser returned null - keeping previous track info');
+                    return;
+                }
                 
                 // Debug track comparison
                 const isTrackEqual = this.lastTrackInfo ? this.tracksEqual(trackInfo, this.lastTrackInfo) : false;
