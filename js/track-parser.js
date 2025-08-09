@@ -80,17 +80,21 @@ class TrackParser {
                 const album = song.albumName || null;
                 const year = TrackParser.extractYear(album) || TrackParser.extractYear(song.catalogNumber);
 
-                return {
-                    artist,
-                    title,
-                    album,
-                    year,
-                    station: stationId,
-                    displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
-                    raw: song
-                };
+                // Only return valid track if we have real data
+                if (artist !== 'Unknown Artist' && title !== 'Unknown Track') {
+                    return {
+                        artist,
+                        title,
+                        album,
+                        year,
+                        station: stationId,
+                        displayText: `${artist} - ${title}${year ? ` (${year})` : ''}`,
+                        raw: song
+                    };
+                }
             }
-            return TrackParser.createFallbackTrack(stationId);
+            // Return null instead of fallback - let caller handle
+            return null;
         },
 
         wfuv: (data, stationId) => {
