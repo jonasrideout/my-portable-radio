@@ -4,6 +4,7 @@ class TrackManager {
         this.savedTracks = JSON.parse(localStorage.getItem('savedTracks') || '[]');
         this.updateSavedTracksList();
         this.updateViewButtonState();
+        this.updateSaveButtonState(); // Add this to initialize button state
     }
 
     saveCurrentTrack() {
@@ -56,6 +57,7 @@ class TrackManager {
             
             // Update button states to normal
             this.clearSaveSuccess();
+            this.updateSaveButtonState();
             
             // Update view button state
             this.updateViewButtonState();
@@ -132,6 +134,56 @@ class TrackManager {
                 btn.dataset.showingSuccess = 'false';
             }
         });
+    }
+
+    // NEW METHOD: Update save button state based on current track
+    updateSaveButtonState() {
+        const button = document.getElementById('saveTrackButton');
+        const persistentButton = document.getElementById('persistentSaveButton');
+        
+        // Get current track
+        const currentTrack = window.radioPlayer ? window.radioPlayer.lastTrackInfo : null;
+        
+        // Check if we should disable the buttons (no valid track data)
+        const shouldDisable = !currentTrack || 
+                             currentTrack.displayText.startsWith('Listening to') ||
+                             currentTrack.displayText === 'Track Data Not Available' ||
+                             currentTrack.displayText === 'Loading...' ||
+                             currentTrack.displayText === 'Loading new track...' ||
+                             currentTrack.artist === 'Unknown Artist' ||
+                             currentTrack.artist === 'Live Radio';
+
+        [button, persistentButton].forEach(btn => {
+            if (btn) {
+                if (shouldDisable) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                } else {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                }
+            }
+        });
+
+        // If track is valid, check if it's already saved and update button text accordingly
+        if (!shouldDisable && currentTrack) {
+            const existingIndex = this.savedTracks.findIndex(t => 
+                t.station === currentTrack.station && 
+                t.artist === currentTrack.artist && 
+                t.title === currentTrack.title
+            );
+            
+            if (existingIndex >= 0) {
+                // Track is already saved - show it as saved
+                this.showSaveSuccess(button);
+                this.showSaveSuccess(persistentButton);
+            } else {
+                // Track is not saved - clear any success state
+                this.clearSaveSuccess();
+            }
+        }
     }
 
     updateViewButtonState() {
@@ -223,6 +275,8 @@ class TrackManager {
         }
         
         this.updateViewButtonState();
+        // Update save button state in case we removed the currently playing track
+        this.updateSaveButtonState();
     }
 
     downloadSavedTracks() {
@@ -508,6 +562,9 @@ class TrackManager {
             }
             
             this.updateViewButtonState();
+            // Clear the save success state and update button state after clearing all
+            this.clearSaveSuccess();
+            this.updateSaveButtonState();
         }
     }
 }
