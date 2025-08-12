@@ -512,6 +512,11 @@ class RadioPlayer {
         // Update Media Session with new track info
         this.updateMediaSessionMetadata(trackInfo);
         
+        // Update save button state when track info changes
+        if (trackManager) {
+            trackManager.updateSaveButtonState();
+        }
+        
         // Start MusicBrainz lookup for album info (only for real tracks)
         this.lookupAlbumInfo(trackInfo);
     }
