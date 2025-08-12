@@ -74,7 +74,7 @@ class ListViewManager {
 
         // Update list content
         if (savedTracks.length === 0) {
-            listElement.innerHTML = '<div class="empty-state">Click the + button or "ADD TO LIST" to save tracks you discover!</div>';
+            listElement.innerHTML = '<div class="empty-state">Click the + button or "SAVE SONG" to save tracks you discover!</div>';
         } else {
             // Create header row
             const headerHTML = `<div class="saved-tracks-list-header">
