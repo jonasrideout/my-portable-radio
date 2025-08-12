@@ -127,6 +127,8 @@ class ListViewManager {
     // Called when a new track is saved - ENHANCED for immediate updates
     onTrackSaved() {
         console.log('onTrackSaved called - updating list view');
+        console.log('Current isListViewVisible:', this.isListViewVisible);
+        
         // Force immediate update by calling updateListDisplay directly
         // bypassing the visibility check since we know we need to update
         this.forceUpdateDisplay();
@@ -151,6 +153,10 @@ class ListViewManager {
         const listElement = document.getElementById('listSavedTracksList');
         const countElement = document.getElementById('listTrackCount');
 
+        console.log('forceUpdateDisplay called');
+        console.log('listElement exists:', !!listElement);
+        console.log('countElement exists:', !!countElement);
+
         if (!listElement || !countElement) {
             console.log('List View elements not found, cannot update');
             return;
@@ -158,14 +164,18 @@ class ListViewManager {
 
         // Get saved tracks from trackManager
         const savedTracks = trackManager ? trackManager.savedTracks : [];
+        console.log('trackManager exists:', !!trackManager);
         console.log('Force updating list display with', savedTracks.length, 'tracks');
+        console.log('First track:', savedTracks.length > 0 ? savedTracks[0] : 'none');
 
         // Update count
         countElement.textContent = `(${savedTracks.length})`;
+        console.log('Updated count to:', countElement.textContent);
 
         // Update list content
         if (savedTracks.length === 0) {
             listElement.innerHTML = '<div class="empty-state">Click the + button or "ADD TO LIST" to save tracks you discover!</div>';
+            console.log('Set empty state HTML');
         } else {
             // Create header row
             const headerHTML = `<div class="saved-tracks-list-header">
@@ -189,7 +199,10 @@ class ListViewManager {
                 </div>`;
             }).join('');
             
-            listElement.innerHTML = headerHTML + tracksHTML;
+            const finalHTML = headerHTML + tracksHTML;
+            listElement.innerHTML = finalHTML;
+            console.log('Set list HTML with', savedTracks.length, 'tracks');
+            console.log('Final HTML length:', finalHTML.length);
         }
 
         console.log(`List View force updated with ${savedTracks.length} tracks`);
