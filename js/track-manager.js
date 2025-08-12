@@ -250,7 +250,7 @@ class TrackManager {
         
         if (listElement) {
             if (this.savedTracks.length === 0) {
-                listElement.innerHTML = '<div class="empty-state">Click the + button next to "Now Playing" to save tracks you discover!</div>';
+                listElement.innerHTML = '<div class="empty-state">Click the + button or "SAVE SONG" to save tracks you discover!</div>';
                 return;
             }
             
