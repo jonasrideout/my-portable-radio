@@ -153,22 +153,29 @@ class TrackManager {
                              currentTrack.artist === 'Unknown Artist' ||
                              currentTrack.artist === 'Live Radio';
 
-        [button, persistentButton].forEach(btn => {
-            if (btn) {
-                if (shouldDisable) {
+        if (shouldDisable) {
+            // Clear any "SAVED" state first when disabling
+            this.clearSaveSuccess();
+            
+            // Then disable the buttons
+            [button, persistentButton].forEach(btn => {
+                if (btn) {
                     btn.disabled = true;
                     btn.style.opacity = '0.5';
                     btn.style.cursor = 'not-allowed';
-                } else {
+                }
+            });
+        } else {
+            // Enable the buttons
+            [button, persistentButton].forEach(btn => {
+                if (btn) {
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
                 }
-            }
-        });
+            });
 
-        // If track is valid, check if it's already saved and update button text accordingly
-        if (!shouldDisable && currentTrack) {
+            // Check if track is already saved and update button text accordingly
             const existingIndex = this.savedTracks.findIndex(t => 
                 t.station === currentTrack.station && 
                 t.artist === currentTrack.artist && 
