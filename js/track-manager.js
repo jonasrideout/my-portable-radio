@@ -83,8 +83,8 @@ class TrackManager {
         this.updateSavedTracksList();
         
         // Notify list view manager that tracks were updated
-        if (window.listViewManager) {
-            listViewManager.onTrackSaved();
+        if (listViewManager) {
+        listViewManager.onTrackSaved();
         }
         
         // Show success feedback on both buttons
