@@ -83,8 +83,8 @@ class TrackManager {
         this.updateSavedTracksList();
         
         // Notify list view manager that tracks were updated
-        if (listViewManager) {
-        listViewManager.onTrackSaved();
+        if (window.listViewManager) {
+            listViewManager.onTrackSaved();
         }
         
         // Show success feedback on both buttons
@@ -144,6 +144,8 @@ class TrackManager {
         // Get current track
         const currentTrack = window.radioPlayer ? window.radioPlayer.lastTrackInfo : null;
         
+        console.log('updateSaveButtonState called, currentTrack:', currentTrack);
+        
         // Check if we should disable the buttons (no valid track data)
         const shouldDisable = !currentTrack || 
                              currentTrack.displayText.startsWith('Listening to') ||
@@ -151,7 +153,19 @@ class TrackManager {
                              currentTrack.displayText === 'Loading...' ||
                              currentTrack.displayText === 'Loading new track...' ||
                              currentTrack.artist === 'Unknown Artist' ||
-                             currentTrack.artist === 'Live Radio';
+                             currentTrack.artist === 'Live Radio' ||
+                             currentTrack.title === 'Unknown Track' ||
+                             (currentTrack.artist === 'Unknown Artist' && currentTrack.title === 'Unknown Track');
+
+        console.log('shouldDisable:', shouldDisable, 'reasons:', {
+            noTrack: !currentTrack,
+            listeningTo: currentTrack ? currentTrack.displayText.startsWith('Listening to') : false,
+            noData: currentTrack ? currentTrack.displayText === 'Track Data Not Available' : false,
+            loading: currentTrack ? (currentTrack.displayText === 'Loading...' || currentTrack.displayText === 'Loading new track...') : false,
+            unknownArtist: currentTrack ? currentTrack.artist === 'Unknown Artist' : false,
+            liveRadio: currentTrack ? currentTrack.artist === 'Live Radio' : false,
+            unknownTrack: currentTrack ? currentTrack.title === 'Unknown Track' : false
+        });
 
         if (shouldDisable) {
             // Clear any "SAVED" state first when disabling
@@ -163,6 +177,7 @@ class TrackManager {
                     btn.disabled = true;
                     btn.style.opacity = '0.5';
                     btn.style.cursor = 'not-allowed';
+                    console.log('Disabled button:', btn.id);
                 }
             });
         } else {
@@ -172,6 +187,7 @@ class TrackManager {
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
+                    console.log('Enabled button:', btn.id);
                 }
             });
 
