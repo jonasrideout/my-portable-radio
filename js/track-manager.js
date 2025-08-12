@@ -125,7 +125,7 @@ class TrackManager {
         [button, persistentButton].forEach(btn => {
             if (btn && btn.dataset.showingSuccess === 'true') {
                 if (btn.querySelector('.persistent-button-text')) {
-                    btn.querySelector('.persistent-button-text').textContent = btn.dataset.originalText || 'ADD TO LIST';
+                    btn.querySelector('.persistent-button-text').textContent = btn.dataset.originalText || 'SAVE SONG';
                     btn.classList.remove('saved');
                 } else {
                     btn.textContent = btn.dataset.originalText || '+';
